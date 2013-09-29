@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="89">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>geomapTest.h</itemPath>
+      <itemPath>gwac.h</itemPath>
+      <itemPath>mathFunction.h</itemPath>
+      <itemPath>nrutil.h</itemPath>
+      <itemPath>readPoints.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>geomap.cpp</itemPath>
+      <itemPath>geomapTest.cpp</itemPath>
+      <itemPath>main.cpp</itemPath>
+      <itemPath>mathFunction.cpp</itemPath>
+      <itemPath>nrutil.cpp</itemPath>
+      <itemPath>readPoints.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <linkerTool>
+          <linkerAddLib>
+            <pElem>.</pElem>
+          </linkerAddLib>
+          <commandLine>-lm</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="geomap.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="geomapTest.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="geomapTest.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="gwac.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="mathFunction.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="mathFunction.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="nrutil.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="nrutil.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="readPoints.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="readPoints.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="geomap.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="geomapTest.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="geomapTest.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="gwac.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="mathFunction.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="mathFunction.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="nrutil.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="nrutil.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="readPoints.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="readPoints.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
