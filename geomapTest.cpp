@@ -7,6 +7,9 @@ using namespace std;
 
 #include <cstdlib>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "gwac.h"
 #include "readPoints.h"
 
@@ -37,11 +40,12 @@ float testFunction2(float x, float y){
 int testGeomap() {
     
     unsigned int order = 6;
-    unsigned int iter = 3;
+    unsigned int iter = 30;
     float rejsigma = 2.5;
     float xrms, yrms;
     const char outfilename[MAX_LINE_LENGTH] = "gwac_geomap_result.txt";
     char statusstr[MAX_LINE_LENGTH];
+    memset(statusstr, 0, MAX_LINE_LENGTH);
 
     char *fName = "data";
     DataStruct *points;
@@ -73,5 +77,6 @@ int testGeomap() {
 //        matchpeervec.push_back(peer);
 //    }
     
-    Gwac_geomap(matchpeervec, order, iter, rejsigma, xrms, yrms, outfilename, statusstr) ;
+    int rstStatus = Gwac_geomap(matchpeervec, order, iter, rejsigma, xrms, yrms, outfilename, statusstr) ;
+    printf("%s\n", statusstr);
 }

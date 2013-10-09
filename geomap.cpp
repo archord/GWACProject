@@ -55,6 +55,24 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
         const char outfilename[],
         char statusstr[]) {
 
+    /*检查错误结果输出参数statusstr是否为空*/
+    CHECK_STATUS_STR_IS_NULL(statusstr);
+    /*检测星表数据数组是否为空*/
+    if (matchpeervec.empty()) {
+        sprintf(statusstr, "Error Code: %d\n"
+                "In Gwac_geomap, the input parameter matchpeervec is empty!\n",
+                GWAC_FUNCTION_INPUT_EMPTY);
+        return GWAC_FUNCTION_INPUT_EMPTY;
+    }
+    /*检测输出结果文件名是否为空*/
+    CHECK_INPUT_IS_NULL("Gwac_geomap", outfilename, "outfilename");
+    if (strcmp(outfilename, "") == 0) {
+        sprintf(statusstr, "Error Code: %d\n"
+                "In Gwac_geomap, the input parameter outfilename is empty!\n",
+                GWAC_FUNCTION_INPUT_EMPTY);
+        return GWAC_FUNCTION_INPUT_EMPTY;
+    }
+
     int pointNum = matchpeervec.size(); //数据点的个数
     int cofNum = (order + 1)*(order + 2) / 2; //高阶拟合系数个数
     int lineCof = 3; //一阶拟合系数个数
@@ -65,16 +83,25 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
      * 申请1个单位的内存空间，所以该实现的内存分配都有+1的现象，以及for循环是从1开始的。
      */
     double *refx = (double *) malloc((pointNum + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("Gwac_geomap", refx, "refx");
     double *refy = (double *) malloc((pointNum + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("Gwac_geomap", refy, "refy");
     double *objx = (double *) malloc((pointNum + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("Gwac_geomap", objx, "objx");
     double *objy = (double *) malloc((pointNum + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("Gwac_geomap", objy, "objy");
 
     double *ax = (double *) malloc((cofNum + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("Gwac_geomap", ax, "ax");
     double *ay = (double *) malloc((cofNum + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("Gwac_geomap", ay, "ay");
     double *lineax = (double *) malloc((lineCof + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("Gwac_geomap", lineax, "lineax");
     double *lineay = (double *) malloc((lineCof + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("Gwac_geomap", lineay, "lineay");
 
     double *afunc = (double *) malloc((cofNum + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("Gwac_geomap", afunc, "afunc");
 
     double objxrms2 = 0.0, objyrms2 = 0.0, objxrmsn = 0.0, objyrmsn = 0.0;
     double xrefmean = 0.0, yrefmean = 0.0, xmean = 0.0, ymean = 0.0;
@@ -101,8 +128,9 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
     ymean = meand(objy, pointNum);
 
     /*首先进行一阶线性拟合*/
-    GWAC_fitting(refx, refy, objx, objy, pointNum, lineax, lineay, lineCof,
+    int retStatus = GWAC_fitting(refx, refy, objx, objy, pointNum, lineax, lineay, lineCof,
             &objxrms2, &objyrms2, iter, rejsigma, statusstr);
+    CHECK_RETURN_SATUS(retStatus);
 
 #ifdef GWAC_TEST
     printFitDiff("order2diff.txt", refx, refy, objx, objy, pointNum,
@@ -125,8 +153,9 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
             objy[i] = fabs(objy[i] - tmpy);
         }
 #endif
-        GWAC_fitting(refx, refy, objx, objy, pointNum, ax, ay, cofNum,
+        retStatus = GWAC_fitting(refx, refy, objx, objy, pointNum, ax, ay, cofNum,
                 &objxrmsn, &objyrmsn, iter, rejsigma, statusstr);
+        CHECK_RETURN_SATUS(retStatus);
 
 #ifdef GWAC_TEST
         printFitDiff("orderndiff.txt", refx, refy, objx, objy, pointNum,
@@ -157,8 +186,9 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
     ymean = meand(objy, pointNum);
 
     /*首先进行一阶线性拟合*/
-    GWAC_fitting(refx, refy, objx, objy, pointNum, lineax, lineay, lineCof,
+    retStatus = GWAC_fitting(refx, refy, objx, objy, pointNum, lineax, lineay, lineCof,
             &objxrms2, &objyrms2, iter, rejsigma, statusstr);
+    CHECK_RETURN_SATUS(retStatus);
 
 #ifdef GWAC_TEST
     printFitDiff("reverse_order2diff.txt", refx, refy, objx, objy, pointNum,
@@ -181,8 +211,9 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
             objy[i] = fabs(objy[i] - tmpy);
         }
 #endif
-        GWAC_fitting(refx, refy, objx, objy, pointNum, ax, ay, cofNum,
+        retStatus = GWAC_fitting(refx, refy, objx, objy, pointNum, ax, ay, cofNum,
                 &objxrmsn, &objyrmsn, iter, rejsigma, statusstr);
+        CHECK_RETURN_SATUS(retStatus);
 
 #ifdef GWAC_TEST
         printFitDiff("reverse_orderndiff.txt", refx, refy, objx, objy, pointNum,
@@ -201,7 +232,11 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
     free(objy);
     free(ax);
     free(ay);
+    free(lineax);
+    free(lineay);
     free(afunc);
+
+    return GWAC_SUCCESS;
 }
 
 /*******************************************************************************
@@ -238,23 +273,44 @@ int GWAC_fitting(double *x1,
         float rejsigma,
         char statusstr[]) {
 
-    bool *rmvflg = (bool *) malloc((dataNum + 1) * sizeof (double));
-    double *tx1 = (double *) malloc((dataNum + 1) * sizeof (double));
-    double *tx2 = (double *) malloc((dataNum + 1) * sizeof (double));
-    double *ty1 = (double *) malloc((dataNum + 1) * sizeof (double));
-    double *ty2 = (double *) malloc((dataNum + 1) * sizeof (double));
-    double *sig = (double *) malloc((dataNum + 1) * sizeof (double));
+    /*检查错误结果输出参数statusstr是否为空*/
+    CHECK_STATUS_STR_IS_NULL(statusstr);
+    /*检测输入参数是否为空*/
+    CHECK_INPUT_IS_NULL("GWAC_fitting", y1, "y1");
+    CHECK_INPUT_IS_NULL("GWAC_fitting", x2, "x2");
+    CHECK_INPUT_IS_NULL("GWAC_fitting", y2, "y2");
+    CHECK_INPUT_IS_NULL("GWAC_fitting", ax, "ax");
+    CHECK_INPUT_IS_NULL("GWAC_fitting", ay, "ay");
+    CHECK_INPUT_IS_NULL("GWAC_fitting", xrms, "xrms");
+    CHECK_INPUT_IS_NULL("GWAC_fitting", yrms, "yrms");
 
-    int *ia = (int *) malloc((cofNum + 1) * sizeof (int));
-    double **covar = (double **) malloc((cofNum + 1) * sizeof (double*)); //matrix cofNum * cofNum
     double chisq;
-
     int i, j;
+
+    bool *rmvflg = (bool *) malloc((dataNum + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("GWAC_fitting", rmvflg, "rmvflg");
+    double *tx1 = (double *) malloc((dataNum + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("GWAC_fitting", tx1, "tx1");
+    double *tx2 = (double *) malloc((dataNum + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("GWAC_fitting", tx2, "tx2");
+    double *ty1 = (double *) malloc((dataNum + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("GWAC_fitting", ty1, "ty1");
+    double *ty2 = (double *) malloc((dataNum + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("GWAC_fitting", ty2, "ty2");
+    double *sig = (double *) malloc((dataNum + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("GWAC_fitting", sig, "sig");
+    double *afunc = (double *) malloc((cofNum + 1) * sizeof (double));
+    CHECK_MALLOC_IS_NULL("GWAC_fitting", afunc, "afunc");
+    int *ia = (int *) malloc((cofNum + 1) * sizeof (int));
+    CHECK_MALLOC_IS_NULL("GWAC_fitting", ia, "ia");
+    double **covar = (double **) malloc((cofNum + 1) * sizeof (double*)); //matrix cofNum * cofNum
+    CHECK_MALLOC_IS_NULL("GWAC_fitting", covar, "covar");
+
     for (i = 0; i <= cofNum; i++) {
         covar[i] = (double *) malloc((cofNum + 1) * sizeof (double));
+        CHECK_MALLOC_IS_NULL("GWAC_fitting", covar[i], "covar[i]");
     }
 
-    double *afunc = (double *) malloc((cofNum + 1) * sizeof (double));
 
     for (i = 1; i <= dataNum; i++) {
         tx1[i] = x1[i];
@@ -349,6 +405,8 @@ int GWAC_fitting(double *x1,
     }
     free(covar);
     free(afunc);
+
+    return GWAC_SUCCESS;
 }
 
 /*******************************************************************************
@@ -364,6 +422,7 @@ int GWAC_fitting(double *x1,
  *      cofnNum N阶拟合系数的个数
  * 
  **输出
+ *      fName 结果输出文件
  *      statusstr 错误返回值
  *          
  **返回值:
@@ -375,12 +434,17 @@ int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double x
         double *cof2x, double * cof2y, int cof2Num, double *cofnx, double * cofny,
         int cofnNum, char statusstr[]) {
 
-    if (fName == NULL)
-        return GWAC_ERROR;
+    /*检查错误结果输出参数statusstr是否为空*/
+    CHECK_STATUS_STR_IS_NULL(statusstr);
+    /*检测输入参数是否为空*/
+    CHECK_INPUT_IS_NULL("printBasicInfo", fName, "fName");
+    CHECK_INPUT_IS_NULL("printBasicInfo", cof2x, "cof2x");
+    CHECK_INPUT_IS_NULL("printBasicInfo", cof2y, "cof2y");
+    CHECK_INPUT_IS_NULL("printBasicInfo", cofnx, "cofnx");
+    CHECK_INPUT_IS_NULL("printBasicInfo", cofny, "cofny");
 
     FILE *fp = fopen(fName, "w");
-    if (fp == NULL)
-        return GWAC_OPEN_FILE_ERROR;
+    CHECK_OPEN_FILE("printBasicInfo", fp, fName);
 
     int order2 = sqrt(2 * cof2Num);
     int ordern = sqrt(2 * cofnNum);
@@ -435,6 +499,9 @@ int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double x
     fprintf(fp, "            0.0   0.0\n");
 
     int i;
+#ifdef GWAC_TEST
+    printf("fit coefficient: %d\n", cof2Num);
+#endif
     for (i = 1; i <= cof2Num; i++) {
         fprintf(fp, "            %e\t%e\n", cof2x[i], cof2y[i]);
 #ifdef GWAC_TEST
@@ -452,7 +519,10 @@ int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double x
     fprintf(fp, "            0.0   0.0\n");
     fprintf(fp, "            0.0   0.0\n");
 
-    printf("fit coefficient:\n");
+#ifdef GWAC_TEST
+    printf("fit coefficient: %d\n", cofnNum);
+#endif
+    
     for (i = 1; i <= cofnNum; i++) {
         fprintf(fp, "			%e\t%e\n", cofnx[i], cofny[i]);
 #ifdef GWAC_TEST
@@ -465,15 +535,16 @@ int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double x
 }
 
 /*******************************************************************************
- * 功能：
+ * 功能：二元高阶最小二乘功能函数，计算各系数所对应项的值，系数个数cofNum=order*(order+1)
+ *      其中order为最高阶次。
  * 
  **输入：
- *      x1 
- *      x2
- *      cofNum
+ *      x1 输入数据x
+ *      x2 输入数据y
+ *      cofNum 系数个数
  * 
  **输出
- *      afunc
+ *      afunc 输出系数
  *          
  **返回值:
  *      0表示正确，其它值为错误码，
