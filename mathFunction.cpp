@@ -197,7 +197,7 @@ void quickSort(int min, int max, double a[]) {
  * 
  * 
  ******************************************************************************/
-double getMedian(double array[], int len) {
+double mediand(double array[], int len) {
 
     double median = 0.0;
     if (len % 2 == 0) {

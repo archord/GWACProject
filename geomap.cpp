@@ -10,22 +10,25 @@
 
 int cofun(double x1, double x2, double *afunc, int cofNum);
 int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double xmean,
-        double ymean, double *cof2x, double * cof2y, int cof2Num, double *cofnx,
-        double * cofny, int cofnNum, char statusstr[]);
+        double ymean, double xrms2, double yrms2, double xrmsn, double yrmsn,
+        double *cof2x, double * cof2y, int cof2Num, double *cofnx, double * cofny,
+        int cofnNum, char statusstr[]);
 int readCof(char *fName, double *xcof, double *ycof, int cofNum);
 int GWAC_fitting(double *x1, double *y1, double *x2, double *y2, int dataNum,
         double *ax, double *ay, int cofNum, double *xrms, double *yrms,
         int iter, float rejsigma, char statusstr[]);
-int printFitDiff(const char *fName, double refx[], double refy[], double inx[], double iny[],
-        int dataNum, double ax[], double ay[], int cofNum, char statusstr[]);
+int printFitDiff(const char *fName, double refx[], double refy[], double inx[],
+        double iny[], int dataNum, double ax[], double ay[], int cofNum,
+        char statusstr[]);
 
 /*******************************************************************************
  * 功能：
  *      1，实现iraf中geomap的功能，对输入的一组星表的坐标值ref(x,y)进行坐标转换到另一组
  *      星表obj(x,y)。其中geomap的实现是先对这两组星表坐标进行一次线性拟合，然后再对obj
  *      与拟合结果的惨差进行高阶多项式拟合。
- *      2，这里实现时，首先对这两组星表坐标进行一次线性拟合， 然后再直接对这两组星表坐标进
- *      行高阶多项式拟合，没有针对惨差的高阶多项式拟合。
+ *      2，这里实现时，如果order大于1，首先对这两组星表坐标进行一次线性拟合，然后再直接
+ *      对这两组星表坐标进行高阶多项式拟合，没有针对惨差的高阶多项式拟合。如果order等于1，
+ *      则只进行一阶线性拟合。
  *      3，拟合完成后，按照geomap的输出文件格式对结果进行输出。
  **输入：
  *      matchpeervec   亮星匹配对
@@ -52,9 +55,9 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
         const char outfilename[],
         char statusstr[]) {
 
-    int pointNum = matchpeervec.size();
-    int cofNum = (order + 1)*(order + 2) / 2;
-    int lineCof = 3;
+    int pointNum = matchpeervec.size(); //数据点的个数
+    int cofNum = (order + 1)*(order + 2) / 2; //高阶拟合系数个数
+    int lineCof = 3; //一阶拟合系数个数
 
     /**
      * pointNum + 1， 这里面的多项式拟合调用的《C数值算法》一书的实现，但是该书的C语言函
@@ -70,12 +73,18 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
     double *ay = (double *) malloc((cofNum + 1) * sizeof (double));
     double *lineax = (double *) malloc((lineCof + 1) * sizeof (double));
     double *lineay = (double *) malloc((lineCof + 1) * sizeof (double));
-    double objxrms, objyrms;
 
     double *afunc = (double *) malloc((cofNum + 1) * sizeof (double));
 
-    double xrefmean, yrefmean, xmean, ymean;
+    double objxrms2 = 0.0, objyrms2 = 0.0, objxrmsn = 0.0, objyrmsn = 0.0;
+    double xrefmean = 0.0, yrefmean = 0.0, xmean = 0.0, ymean = 0.0;
 
+    memset(ax, 0, (cofNum + 1) * sizeof (double));
+    memset(ay, 0, (cofNum + 1) * sizeof (double));
+    memset(lineax, 0, (lineCof + 1) * sizeof (double));
+    memset(lineay, 0, (lineCof + 1) * sizeof (double));
+
+    /*正向拟合，使用参考星拟合目标星*/
     int i, j;
     for (i = 0; i < pointNum; i++) {
         ST_STAR tref = matchpeervec.at(i).ref;
@@ -86,42 +95,105 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
         objy[i + 1] = tobj.y;
     }
 
-    memset(lineax, 0, (lineCof + 1) * sizeof (double));
-    memset(lineay, 0, (lineCof + 1) * sizeof (double));
-    GWAC_fitting(refx, refy, objx, objy, pointNum, lineax, lineay, lineCof, 
-            &objxrms, &objyrms, iter, rejsigma, statusstr);
+    xrefmean = meand(refx, pointNum);
+    yrefmean = meand(refy, pointNum);
+    xmean = meand(objx, pointNum);
+    ymean = meand(objy, pointNum);
+
+    /*首先进行一阶线性拟合*/
+    GWAC_fitting(refx, refy, objx, objy, pointNum, lineax, lineay, lineCof,
+            &objxrms2, &objyrms2, iter, rejsigma, statusstr);
 
 #ifdef GWAC_TEST
-    printFitDiff("order2diff.txt", refx, refy, objx, objy, pointNum, 
+    printFitDiff("order2diff.txt", refx, refy, objx, objy, pointNum,
             lineax, lineay, lineCof, statusstr);
 #endif
 
+    /*如果order大于1，再进行高阶拟合*/
+    if (order > 1) {
 #ifdef RESIDUALS
-    for (i = 1; i <= pointNum; i++) {
-        cofun(refx[i], refy[i], afunc, cofNum);
-        double tmpx = 0.0;
-        double tmpy = 0.0;
-        for (j = 1; j <= cofNum; j++) {
-            tmpx += ax[j] * afunc[j];
-            tmpy += ay[j] * afunc[j];
+        /*对目标值与拟合值求残差，该程序对残差的拟合效果不好*/
+        for (i = 1; i <= pointNum; i++) {
+            cofun(refx[i], refy[i], afunc, lineCof);
+            double tmpx = 0.0;
+            double tmpy = 0.0;
+            for (j = 1; j <= lineCof; j++) {
+                tmpx += lineax[j] * afunc[j];
+                tmpy += lineay[j] * afunc[j];
+            }
+            objx[i] = fabs(objx[i] - tmpx);
+            objy[i] = fabs(objy[i] - tmpy);
         }
-        objx[i] = fabs(objx[i] - tmpx);
-        objy[i] = fabs(objy[i] - tmpy);
-    }
 #endif
-
-    cofNum = (order + 1)*(order + 2) / 2;
-    memset(ax, 0, (cofNum + 1) * sizeof (double));
-    memset(ay, 0, (cofNum + 1) * sizeof (double));
-    GWAC_fitting(refx, refy, objx, objy, pointNum, ax, ay, cofNum, 
-            &objxrms, &objyrms, iter, rejsigma, statusstr);
-    printBasicInfo(outfilename, xrefmean, yrefmean, xmean, ymean, lineax, lineay, 
-            lineCof, ax, ay, cofNum, statusstr);
+        GWAC_fitting(refx, refy, objx, objy, pointNum, ax, ay, cofNum,
+                &objxrmsn, &objyrmsn, iter, rejsigma, statusstr);
 
 #ifdef GWAC_TEST
-    printFitDiff("order6diff.txt", refx, refy, objx, objy, pointNum, 
-            ax, ay, cofNum, statusstr);
+        printFitDiff("orderndiff.txt", refx, refy, objx, objy, pointNum,
+                ax, ay, cofNum, statusstr);
 #endif
+    }
+
+    /*将拟合结果输出到文件*/
+    printBasicInfo(outfilename, xrefmean, yrefmean, xmean, ymean, objxrms2,
+            objyrms2, objxrmsn, objyrmsn, lineax, lineay, lineCof, ax, ay,
+            cofNum, statusstr);
+
+    /*反向拟合，使用目标星拟合参考星*/
+    char rvsOutFileName[MAX_LINE_LENGTH];
+    sprintf(rvsOutFileName, "reverse_%s", outfilename);
+    for (i = 0; i < pointNum; i++) {
+        ST_STAR tref = matchpeervec.at(i).ref;
+        ST_STAR tobj = matchpeervec.at(i).obj;
+        refx[i + 1] = tobj.x;
+        refy[i + 1] = tobj.y;
+        objx[i + 1] = tref.x;
+        objy[i + 1] = tref.y;
+    }
+
+    xrefmean = meand(refx, pointNum);
+    yrefmean = meand(refy, pointNum);
+    xmean = meand(objx, pointNum);
+    ymean = meand(objy, pointNum);
+
+    /*首先进行一阶线性拟合*/
+    GWAC_fitting(refx, refy, objx, objy, pointNum, lineax, lineay, lineCof,
+            &objxrms2, &objyrms2, iter, rejsigma, statusstr);
+
+#ifdef GWAC_TEST
+    printFitDiff("reverse_order2diff.txt", refx, refy, objx, objy, pointNum,
+            lineax, lineay, lineCof, statusstr);
+#endif
+
+    /*如果order大于1，再进行高阶拟合*/
+    if (order > 1) {
+#ifdef RESIDUALS
+        /*对目标值与拟合值求残差，该程序对残差的拟合效果不好*/
+        for (i = 1; i <= pointNum; i++) {
+            cofun(refx[i], refy[i], afunc, lineCof);
+            double tmpx = 0.0;
+            double tmpy = 0.0;
+            for (j = 1; j <= lineCof; j++) {
+                tmpx += lineax[j] * afunc[j];
+                tmpy += lineay[j] * afunc[j];
+            }
+            objx[i] = fabs(objx[i] - tmpx);
+            objy[i] = fabs(objy[i] - tmpy);
+        }
+#endif
+        GWAC_fitting(refx, refy, objx, objy, pointNum, ax, ay, cofNum,
+                &objxrmsn, &objyrmsn, iter, rejsigma, statusstr);
+
+#ifdef GWAC_TEST
+        printFitDiff("reverse_orderndiff.txt", refx, refy, objx, objy, pointNum,
+                ax, ay, cofNum, statusstr);
+#endif
+    }
+
+    /*将拟合结果输出到文件*/
+    printBasicInfo(rvsOutFileName, xrefmean, yrefmean, xmean, ymean, objxrms2,
+            objyrms2, objxrmsn, objyrmsn, lineax, lineay, lineCof, ax, ay,
+            cofNum, statusstr);
 
     free(refx);
     free(refy);
@@ -152,17 +224,17 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
  *      0表示正确，其它值为错误码，
  *      蔡使用2001～2999，徐使用3001～3999，苑使用4001～4999，李使用5001～5999
  ******************************************************************************/
-int GWAC_fitting(double *x1, 
-        double *y1, 
-        double *x2, 
-        double *y2, 
+int GWAC_fitting(double *x1,
+        double *y1,
+        double *x2,
+        double *y2,
         int dataNum,
-        double *ax, 
-        double *ay, 
-        int cofNum, 
-        double *xrms, 
+        double *ax,
+        double *ay,
+        int cofNum,
+        double *xrms,
         double *yrms,
-        int iter, 
+        int iter,
         float rejsigma,
         char statusstr[]) {
 
@@ -280,27 +352,28 @@ int GWAC_fitting(double *x1,
 }
 
 /*******************************************************************************
- * 功能：
+ * 功能：输出拟合数据的相关信息到指定的文件fName， 包括参考星表和目标星表的x，y坐标的均值和
+ *      拟合后的均方差，平移，旋转，缩放，一阶拟合和高阶拟合的系数。
  * 
  **输入：
- *      x1, y1
- *      x2, y2
- *      dataNum
- *      cofNum
- *      iter
- *      rejsigma
+ *      fName 输出文件名
+ *      xrefmean, yrefmean, xmean, ymean 参考星表和目标星表的x，y坐标的均值
+ *      cof2x, cof2y 二阶拟合系数
+ *      cof2Num 二阶拟合系数的个数
+ *      cofnx, cofny N阶拟合系数
+ *      cofnNum N阶拟合系数的个数
  * 
  **输出
- *      ax, ay
- *      xrms, yrms
+ *      statusstr 错误返回值
  *          
  **返回值:
  *      0表示正确，其它值为错误码，
  *      蔡使用2001～2999，徐使用3001～3999，苑使用4001～4999，李使用5001～5999
  ******************************************************************************/
 int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double xmean,
-        double ymean, double *cof2x, double * cof2y, int cof2Num, double *cofnx,
-        double * cofny, int cofnNum, char statusstr[]) {
+        double ymean, double xrms2, double yrms2, double xrmsn, double yrmsn,
+        double *cof2x, double * cof2y, int cof2Num, double *cofnx, double * cofny,
+        int cofnNum, char statusstr[]) {
 
     if (fName == NULL)
         return GWAC_ERROR;
@@ -311,8 +384,29 @@ int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double x
 
     int order2 = sqrt(2 * cof2Num);
     int ordern = sqrt(2 * cofnNum);
-    
+
     double xshift, yshift, xmag, ymag, xrotation, yrotation, xrms, yrms;
+    double a, b, c, d, e, f;
+    a = cof2x[1];
+    b = cof2x[2];
+    c = cof2x[3];
+    d = cof2y[1];
+    e = cof2y[2];
+    f = cof2y[3];
+    xshift = a;
+    yshift = d;
+    xrotation = atan(e / b);
+    yrotation = atan(c / f);
+    xmag = b / cos(xrotation);
+    ymag = c / sin(yrotation);
+
+    if (cofnNum == 3) {
+        xrms = xrms2;
+        yrms = yrms2;
+    } else {
+        xrms = xrmsn;
+        yrms = yrmsn;
+    }
 
     fprintf(fp, "begin    first\n");
     fprintf(fp, "    xrefmean  %f\n", xrefmean);
@@ -329,7 +423,7 @@ int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double x
     fprintf(fp, "    yrotation %f\n", yrotation);
     fprintf(fp, "    xrms      %f\n", xrms);
     fprintf(fp, "    yrms      %f\n", yrms);
-    
+
     fprintf(fp, "    surface1    %d\n", 8 + cof2Num);
     fprintf(fp, "            3.    3.\n");
     fprintf(fp, "            %d.    %d.\n", order2, order2);
@@ -347,7 +441,7 @@ int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double x
         printf("%e\t%e\n", cof2x[i], cof2y[i]);
 #endif
     }
-    
+
     fprintf(fp, "    surface2    %d\n", 8 + cofnNum);
     fprintf(fp, "            3.    3.\n");
     fprintf(fp, "            %d.    %d.\n", ordern, ordern);
@@ -454,7 +548,6 @@ int printFitDiff(const char *fName, double refx[], double refy[], double inx[], 
 
     return GWAC_SUCCESS;
 }
-
 
 int readCof(char *fName, double *xcof, double *ycof, int cofNum) {
 

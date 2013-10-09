@@ -36,7 +36,7 @@ float testFunction2(float x, float y){
 
 int testGeomap() {
     
-    unsigned int order = 5;
+    unsigned int order = 6;
     unsigned int iter = 3;
     float rejsigma = 2.5;
     float xrms, yrms;
