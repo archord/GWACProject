@@ -18,27 +18,20 @@ using namespace std;
 int main(int argc, char** argv) {
 
     testGeomap();
+    testGeoxytran();
+    test2To5();
 
-//    int j, k;
-//    int order = 6;
-//    for (j = 0; j < order; j++) {
-//        for (k = 0; k < order - j; k++) {
-//            printf("x%dy%d ", k, j);
-//        }
-//        printf("\n");
-//    }
-//    double x1 = 2.121, x2 = 3.0;
-//    for (j = 0; j < order; j++) {
-//        for (k = 0; k < order - j; k++) {
-//            double x = pow(x1, k);
-//            double y = pow(x2, j);
-//            printf("%e %e ", x, y);
-//        }
-//        printf("\n");
-//    }
-//    int i;
-//    for(i=0; i<10; i++)
-//    printf("%d\n", rand()%100);
+    //    ST_STAR star1;
+    //    star1.x = 10;
+    //    star1.y = 20;
+    //    
+    //    ST_STAR &star2 = star1; 
+    //    
+    //    star2.x = 30;
+    //    star2.y = 40;
+    //    
+    //    printf("star1 %f %f\n", star1.x, star1.y);
+    //    printf("star2 %f %f\n", star2.x, star2.y);
 
     return 0;
 }

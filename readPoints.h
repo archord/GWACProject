@@ -17,7 +17,8 @@ typedef struct DataStruct {
 
 #define MAX_LINE_LENGTH 1024
 
-int readPoints(char *fName, DataStruct **points, int *pointNum) ;
+int readPoints(const char *fName, DataStruct **points, int *pointNum);
+int writePoints(const char *fName, DataStruct *points, int pointNum);
 
 #endif	/* READPOINTS_H */
 

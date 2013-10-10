@@ -35,8 +35,10 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/geomap.o \
+	${OBJECTDIR}/Gwac_geomap.o \
+	${OBJECTDIR}/Gwac_geoxytran.o \
 	${OBJECTDIR}/geomapTest.o \
+	${OBJECTDIR}/getShift.o \
 	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/mathFunction.o \
 	${OBJECTDIR}/nrutil.o \
@@ -67,15 +69,25 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/gwacproject: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/gwacproject ${OBJECTFILES} ${LDLIBSOPTIONS} -lm
 
-${OBJECTDIR}/geomap.o: geomap.cpp 
+${OBJECTDIR}/Gwac_geomap.o: Gwac_geomap.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/geomap.o geomap.cpp
+	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/Gwac_geomap.o Gwac_geomap.cpp
+
+${OBJECTDIR}/Gwac_geoxytran.o: Gwac_geoxytran.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/Gwac_geoxytran.o Gwac_geoxytran.cpp
 
 ${OBJECTDIR}/geomapTest.o: geomapTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/geomapTest.o geomapTest.cpp
+
+${OBJECTDIR}/getShift.o: getShift.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/getShift.o getShift.cpp
 
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}

@@ -17,8 +17,10 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>geomap.cpp</itemPath>
+      <itemPath>Gwac_geomap.cpp</itemPath>
+      <itemPath>Gwac_geoxytran.cpp</itemPath>
       <itemPath>geomapTest.cpp</itemPath>
+      <itemPath>getShift.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
       <itemPath>mathFunction.cpp</itemPath>
       <itemPath>nrutil.cpp</itemPath>
@@ -53,11 +55,15 @@
           <commandLine>-lm</commandLine>
         </linkerTool>
       </compileType>
-      <item path="geomap.cpp" ex="false" tool="1" flavor2="0">
+      <item path="Gwac_geomap.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Gwac_geoxytran.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="geomapTest.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="geomapTest.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="getShift.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="gwac.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -97,11 +103,15 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
-      <item path="geomap.cpp" ex="false" tool="1" flavor2="0">
+      <item path="Gwac_geomap.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Gwac_geoxytran.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="geomapTest.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="geomapTest.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="getShift.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="gwac.h" ex="false" tool="3" flavor2="0">
       </item>

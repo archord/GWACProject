@@ -128,8 +128,8 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
     ymean = meand(objy, pointNum);
 
     /*首先进行一阶线性拟合*/
-    int retStatus = GWAC_fitting(refx, refy, objx, objy, pointNum, lineax, lineay, lineCof,
-            &objxrms2, &objyrms2, iter, rejsigma, statusstr);
+    int retStatus = GWAC_fitting(objx, objy, refx, refy, pointNum, lineax,
+            lineay, lineCof, &objxrms2, &objyrms2, iter, rejsigma, statusstr);
     CHECK_RETURN_SATUS(retStatus);
 
 #ifdef GWAC_TEST
@@ -153,7 +153,7 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
             objy[i] = fabs(objy[i] - tmpy);
         }
 #endif
-        retStatus = GWAC_fitting(refx, refy, objx, objy, pointNum, ax, ay, cofNum,
+        retStatus = GWAC_fitting(objx, objy, refx, refy, pointNum, ax, ay, cofNum,
                 &objxrmsn, &objyrmsn, iter, rejsigma, statusstr);
         CHECK_RETURN_SATUS(retStatus);
 
@@ -186,7 +186,7 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
     ymean = meand(objy, pointNum);
 
     /*首先进行一阶线性拟合*/
-    retStatus = GWAC_fitting(refx, refy, objx, objy, pointNum, lineax, lineay, lineCof,
+    retStatus = GWAC_fitting(objx, objy, refx, refy, pointNum, lineax, lineay, lineCof,
             &objxrms2, &objyrms2, iter, rejsigma, statusstr);
     CHECK_RETURN_SATUS(retStatus);
 
@@ -211,7 +211,7 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
             objy[i] = fabs(objy[i] - tmpy);
         }
 #endif
-        retStatus = GWAC_fitting(refx, refy, objx, objy, pointNum, ax, ay, cofNum,
+        retStatus = GWAC_fitting(objx, objy, refx, refy, pointNum, ax, ay, cofNum,
                 &objxrmsn, &objyrmsn, iter, rejsigma, statusstr);
         CHECK_RETURN_SATUS(retStatus);
 
@@ -491,7 +491,7 @@ int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double x
     fprintf(fp, "    surface1    %d\n", 8 + cof2Num);
     fprintf(fp, "            3.    3.\n");
     fprintf(fp, "            %d.    %d.\n", order2, order2);
-    fprintf(fp, "            %d.	%d.\n", order2, order2);
+    fprintf(fp, "            %d.    %d.\n", order2, order2);
     fprintf(fp, "            0.    0.\n");
     fprintf(fp, "            0.0   0.0\n");
     fprintf(fp, "            0.0   0.0\n");
@@ -512,7 +512,7 @@ int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double x
     fprintf(fp, "    surface2    %d\n", 8 + cofnNum);
     fprintf(fp, "            3.    3.\n");
     fprintf(fp, "            %d.    %d.\n", ordern, ordern);
-    fprintf(fp, "            %d.	%d.\n", ordern, ordern);
+    fprintf(fp, "            %d.    %d.\n", ordern, ordern);
     fprintf(fp, "            2.    2.\n");
     fprintf(fp, "            0.0   0.0\n");
     fprintf(fp, "            0.0   0.0\n");
@@ -522,11 +522,17 @@ int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double x
 #ifdef GWAC_TEST
     printf("fit coefficient: %d\n", cofnNum);
 #endif
-    
+
     for (i = 1; i <= cofnNum; i++) {
-        fprintf(fp, "			%e\t%e\n", cofnx[i], cofny[i]);
+        if (cofnNum != cof2Num)
+            fprintf(fp, "			%e\t%e\n", cofnx[i], cofny[i]);
+        else
+            fprintf(fp, "			%e\t%e\n", cof2x[i], cof2y[i]);
 #ifdef GWAC_TEST
-        printf("%e\t%e\n", cofnx[i], cofny[i]);
+        if (cofnNum != cof2Num)
+            printf("%e\t%e\n", cofnx[i], cofny[i]);
+        else
+            printf("%e\t%e\n", cof2x[i], cof2y[i]);
 #endif
     }
 
@@ -550,7 +556,10 @@ int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double x
  *      0表示正确，其它值为错误码，
  *      蔡使用2001～2999，徐使用3001～3999，苑使用4001～4999，李使用5001～5999
  ******************************************************************************/
-int cofun(double x1, double x2, double *afunc, int cofNum) {
+int cofun(double x1,
+        double x2,
+        double *afunc,
+        int cofNum) {
 
     int order = sqrt(2 * cofNum);
     int j, k;
@@ -566,6 +575,21 @@ int cofun(double x1, double x2, double *afunc, int cofNum) {
     return GWAC_SUCCESS;
 }
 
+/**
+ * 测试函数
+ * 输出目标星的实际坐标值和拟合坐标值的原始值，差值，等信息到文件
+ * @param fName
+ * @param refx
+ * @param refy
+ * @param inx
+ * @param iny
+ * @param dataNum
+ * @param ax
+ * @param ay
+ * @param cofNum
+ * @param statusstr
+ * @return 
+ */
 int printFitDiff(const char *fName, double refx[], double refy[], double inx[], double iny[],
         int dataNum, double ax[], double ay[], int cofNum, char statusstr[]) {
 
@@ -620,6 +644,15 @@ int printFitDiff(const char *fName, double refx[], double refy[], double inx[], 
     return GWAC_SUCCESS;
 }
 
+/**
+ * 测试函数
+ * 从参数文件中读取参数
+ * @param fName
+ * @param xcof
+ * @param ycof
+ * @param cofNum
+ * @return 
+ */
 int readCof(char *fName, double *xcof, double *ycof, int cofNum) {
 
     if (fName == NULL)
@@ -635,5 +668,23 @@ int readCof(char *fName, double *xcof, double *ycof, int cofNum) {
     }
     fclose(fp);
 
+    return GWAC_SUCCESS;
+}
+
+/*******************************************************************************
+ * 功能：函数头注释示例
+ * 
+ **输入：
+ *      a 输入数据a
+ *      b 输入数据b
+ * 
+ **输出
+ *      c 输出数据c
+ *          
+ **返回值:
+ *      0表示正确，其它值为错误码，
+ *      蔡使用2001～2999，徐使用3001～3999，苑使用4001～4999，李使用5001～5999
+ ******************************************************************************/
+int testFunction(int a, int b, int &c) {
     return GWAC_SUCCESS;
 }

@@ -76,7 +76,21 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
         float &yrms,
         const char outfilename[],
         char statusstr[]);
+int cofun(double x1, 
+        double x2, 
+        double *afunc, 
+        int cofNum);
+int GetShift(const char transfilename[], 
+        float &xshift, 
+        float &yshift,
+        char statusstr[]);
+int Gwac_geoxytran(vector<ST_STAR> &objvec,
+        const char transfilename[],
+        int flag,
+        char statusstr[]);
 int testGeomap();
+void testGeoxytran();
+void test2To5();
 
 #endif	/* GWAC_H */
 

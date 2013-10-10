@@ -7,7 +7,7 @@
 #include "gwac.h"
 #include "readPoints.h"
 
-int readPoints(char *fName, DataStruct **points, int *pointNum) {
+int readPoints(const char *fName, DataStruct **points, int *pointNum) {
 
     if (fName == NULL)
         return GWAC_ERROR;
@@ -34,8 +34,7 @@ int readPoints(char *fName, DataStruct **points, int *pointNum) {
     float xref, yref, xin, yin;
     for (i = 0; i < lineNum; i++) {
         fgets(line, MAX_LINE_LENGTH, fp);
-        sscanf(line, "%f %f %f %f",
-                &xref, &yref, &xin, &yin);
+        sscanf(line, "%f %f %f %f", &xref, &yref, &xin, &yin);
         tPoints[i].xref = xref;
         tPoints[i].yref = yref;
         tPoints[i].xin = xin;
@@ -46,5 +45,23 @@ int readPoints(char *fName, DataStruct **points, int *pointNum) {
     free(line);
     fclose(fp);
 
+    return GWAC_SUCCESS;
+}
+
+int writePoints(const char *fName, DataStruct *points, int pointNum){
+    
+    if (fName == NULL)
+        return GWAC_ERROR;
+    
+    FILE *fp = fopen(fName, "w");
+    if (fp == NULL)
+        return GWAC_OPEN_FILE_ERROR;
+    
+    int i;
+    for (i = 0; i < pointNum; i++) {
+        fprintf(fp, "%9.3f %9.3f %9.3f %9.3f\n", 
+                points[i].xref, points[i].yref, points[i].xin, points[i].yin);
+    }
+    fclose(fp);
     return GWAC_SUCCESS;
 }
