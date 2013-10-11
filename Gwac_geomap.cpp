@@ -22,14 +22,17 @@ int printFitDiff(const char *fName, double refx[], double refy[], double inx[],
         char statusstr[]);
 
 /*******************************************************************************
- * 功能：
- *      1，实现iraf中geomap的功能，对输入的一组星表的坐标值ref(x,y)进行坐标转换到另一组
- *      星表obj(x,y)。其中geomap的实现是先对这两组星表坐标进行一次线性拟合，然后再对obj
+ * 功能：星表坐标拟合，包括正向拟合(in到ref)和反向拟合两部分(ref到in)
+ *      1，实现iraf中geomap的功能，对输入的一组星表的坐标值in(x,y)进行坐标转换到另一组
+ *      星表ref(x,y)。其中geomap的实现是先对这两组星表坐标进行一次线性拟合，然后再对ref
  *      与拟合结果的惨差进行高阶多项式拟合。
  *      2，这里实现时，如果order大于1，首先对这两组星表坐标进行一次线性拟合，然后再直接
  *      对这两组星表坐标进行高阶多项式拟合，没有针对惨差的高阶多项式拟合。如果order等于1，
  *      则只进行一阶线性拟合。
  *      3，拟合完成后，按照geomap的输出文件格式对结果进行输出。
+ *      4，该函数首先进行正向拟合，拟合结果输出到outfilename文件中；然后进行反向拟合，输
+ *      出结果输出到outfilename.reverse(即在outfilename的后面添加后缀.reverse作为新的
+ *      文件名)文件中。
  **输入：
  *      matchpeervec   亮星匹配对
  *      order        拟合阶数
@@ -142,15 +145,17 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
 #ifdef RESIDUALS
         /*对目标值与拟合值求残差，该程序对残差的拟合效果不好*/
         for (i = 1; i <= pointNum; i++) {
-            cofun(refx[i], refy[i], afunc, lineCof);
+            cofun(objx[i], objy[i], afunc, lineCof);
             double tmpx = 0.0;
             double tmpy = 0.0;
             for (j = 1; j <= lineCof; j++) {
                 tmpx += lineax[j] * afunc[j];
                 tmpy += lineay[j] * afunc[j];
             }
-            objx[i] = fabs(objx[i] - tmpx);
-            objy[i] = fabs(objy[i] - tmpy);
+            refx[i] = fabs(refx[i] - tmpx);
+            refy[i] = fabs(refy[i] - tmpy);
+//            refx[i] = (refx[i] - tmpx);
+//            refy[i] = (refy[i] - tmpy);
         }
 #endif
         retStatus = GWAC_fitting(objx, objy, refx, refy, pointNum, ax, ay, cofNum,
@@ -170,7 +175,7 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
 
     /*反向拟合，使用目标星拟合参考星*/
     char rvsOutFileName[MAX_LINE_LENGTH];
-    sprintf(rvsOutFileName, "reverse_%s", outfilename);
+    sprintf(rvsOutFileName, "%s.reverse", outfilename);
     for (i = 0; i < pointNum; i++) {
         ST_STAR tref = matchpeervec.at(i).ref;
         ST_STAR tobj = matchpeervec.at(i).obj;
@@ -200,15 +205,17 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
 #ifdef RESIDUALS
         /*对目标值与拟合值求残差，该程序对残差的拟合效果不好*/
         for (i = 1; i <= pointNum; i++) {
-            cofun(refx[i], refy[i], afunc, lineCof);
+            cofun(objx[i], objy[i], afunc, lineCof);
             double tmpx = 0.0;
             double tmpy = 0.0;
             for (j = 1; j <= lineCof; j++) {
                 tmpx += lineax[j] * afunc[j];
                 tmpy += lineay[j] * afunc[j];
             }
-            objx[i] = fabs(objx[i] - tmpx);
-            objy[i] = fabs(objy[i] - tmpy);
+            refx[i] = fabs(refx[i] - tmpx);
+            refy[i] = fabs(refy[i] - tmpy);
+//            refx[i] = (refx[i] - tmpx);
+//            refy[i] = (refy[i] - tmpy);
         }
 #endif
         retStatus = GWAC_fitting(objx, objy, refx, refy, pointNum, ax, ay, cofNum,

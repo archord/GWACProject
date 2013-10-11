@@ -34,7 +34,7 @@ typedef struct {
 } ST_STARPEER;
 
 #define RESIDUALS1
-#define GWAC_TEST
+#define GWAC_TEST1
 
 #define MAX_LINE_LENGTH 1024
 

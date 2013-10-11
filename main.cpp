@@ -18,8 +18,8 @@ using namespace std;
 int main(int argc, char** argv) {
 
     testGeomap();
-    testGeoxytran();
-    test2To5();
+    //testGeoxytran();
+    //test2To5();
 
     //    ST_STAR star1;
     //    star1.x = 10;

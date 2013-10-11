@@ -108,7 +108,7 @@ void testGeoxytran() {
         stars.push_back(star);
     }
 
-    int flag = 1;
+    int flag = -1;
     Gwac_geoxytran(stars, cofName, flag, statusstr);
     
     for (i = 0; i < pointNum; i++) {

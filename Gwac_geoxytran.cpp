@@ -14,8 +14,9 @@
  *      objvec星表列表，输入时为待转换坐标，输出时为转换后坐标
  *      transfilename 拟合参数文件名，其格式为geomap软件输出格式
  *      flag 控制转换方向
- *          当flag= 1时，objvec输入为（xref,yref），输出为（xin,yin）
- *          当flag=-1时，objvec输入为（xin,yin），输出为（xref,yref）
+ *          当flag= 1时，objvec输入为（xref,yref），输出为（xin,yin），直接读取参赛文件
+ *          当flag=-1时，objvec输入为（xin,yin），输出为（xref,yref），读取参数文件
+ *          transfilename.reverse
  * 
  **输出
  *      objvec星表列表，输入时为待转换坐标，输出时为转换后坐标
@@ -46,7 +47,7 @@ int Gwac_geoxytran(vector<ST_STAR> &objvec,
     if (flag == 1) {
         sprintf(cofFileName, "%s", transfilename);
     } else {
-        sprintf(cofFileName, "reverse_%s", transfilename);
+        sprintf(cofFileName, "%s.reverse", transfilename);
     }
 
     FILE *fp = fopen(cofFileName, "r");
