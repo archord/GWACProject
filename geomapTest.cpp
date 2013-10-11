@@ -85,6 +85,8 @@ int testGeomap() {
     rstStatus = GetShift(outfilename, xshift, yshift, statusstr);
     printf("xshift=%f\nyshift=%f\n", xshift, yshift);
     printf("%s\n", statusstr);
+    
+    free(points);
 }
 
 void testGeoxytran() {

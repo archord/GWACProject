@@ -14,9 +14,10 @@
  *      objvec星表列表，输入时为待转换坐标，输出时为转换后坐标
  *      transfilename 拟合参数文件名，其格式为geomap软件输出格式
  *      flag 控制转换方向
- *          当flag= 1时，objvec输入为（xref,yref），输出为（xin,yin），直接读取参赛文件
- *          当flag=-1时，objvec输入为（xin,yin），输出为（xref,yref），读取参数文件
- *          transfilename.reverse
+ *          当flag= 1时，反向拟合，objvec输入为（xref,yref），输出为（xin,yin），读
+ *          取参赛文件中第二组拟合系数
+ *          当flag=-1时，正向拟合，objvec输入为（xin,yin），输出为（xref,yref），读
+ *          取参赛文件中第一组拟合系数
  * 
  **输出
  *      objvec星表列表，输入时为待转换坐标，输出时为转换后坐标
@@ -43,14 +44,7 @@ int Gwac_geoxytran(vector<ST_STAR> &objvec,
         return GWAC_FUNCTION_INPUT_EMPTY;
     }
 
-    char cofFileName[MAX_LINE_LENGTH];
-    if (flag == 1) {
-        sprintf(cofFileName, "%s", transfilename);
-    } else {
-        sprintf(cofFileName, "%s.reverse", transfilename);
-    }
-
-    FILE *fp = fopen(cofFileName, "r");
+    FILE *fp = fopen(transfilename, "r");
     CHECK_OPEN_FILE("Gwac_geoxytran", fp, transfilename);
 
     int surface2 = 0;
@@ -58,18 +52,24 @@ int Gwac_geoxytran(vector<ST_STAR> &objvec,
     double *xcof, *ycof;
 
     int startFlag = 0;
+    int reverseFlag = 0;
     int cofStartLine = 0;
     char line[MAX_LINE_LENGTH];
     while (fgets(line, MAX_LINE_LENGTH, fp) != NULL) {
         if (strstr(line, "surface2") != NULL) {
-            sscanf(line, "%*s%d", &surface2);
-            /*前8行为其他信息*/
-            cofNum = surface2 - 8;
-            xcof = (double*) malloc(cofNum * sizeof (double));
-            CHECK_MALLOC_IS_NULL("Gwac_geoxytran", xcof, "xcof");
-            ycof = (double*) malloc(cofNum * sizeof (double));
-            CHECK_MALLOC_IS_NULL("Gwac_geoxytran", ycof, "ycof");
-            startFlag = 1;
+            /*如果flag==-1，则进行正向拟合，读取第一组多项式系数*/
+            /*如果flag==1，则进行反向拟合，读取第二组多项式系数*/
+            if ((flag == -1) || (flag == 1 && reverseFlag == 1)) {
+                sscanf(line, "%*s%d", &surface2);
+                /*前8行为其他信息*/
+                cofNum = surface2 - 8;
+                xcof = (double*) malloc(cofNum * sizeof (double));
+                CHECK_MALLOC_IS_NULL("Gwac_geoxytran", xcof, "xcof");
+                ycof = (double*) malloc(cofNum * sizeof (double));
+                CHECK_MALLOC_IS_NULL("Gwac_geoxytran", ycof, "ycof");
+                startFlag = 1;
+            }
+            reverseFlag = 1;
         }
         if (startFlag == 1) {
             cofStartLine++;
@@ -79,9 +79,13 @@ int Gwac_geoxytran(vector<ST_STAR> &objvec,
                 cofIdx++;
             }
         }
+        /*读完一组多项式系数，则跳出循环*/
+        if(cofStartLine >= 30) {
+            break;
+        }
     }
     fclose(fp);
-    
+
     double *afunc = (double*) malloc((cofNum + 1) * sizeof (double));
     CHECK_MALLOC_IS_NULL("Gwac_geoxytran", afunc, "afunc");
 

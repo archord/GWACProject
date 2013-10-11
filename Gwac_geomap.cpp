@@ -9,7 +9,7 @@
 #include "mathFunction.h"
 
 int cofun(double x1, double x2, double *afunc, int cofNum);
-int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double xmean,
+int printBasicInfo(const char *fName, char *otype, double xrefmean, double yrefmean, double xmean,
         double ymean, double xrms2, double yrms2, double xrmsn, double yrmsn,
         double *cof2x, double * cof2y, int cof2Num, double *cofnx, double * cofny,
         int cofnNum, char statusstr[]);
@@ -30,9 +30,9 @@ int printFitDiff(const char *fName, double refx[], double refy[], double inx[],
  *      对这两组星表坐标进行高阶多项式拟合，没有针对惨差的高阶多项式拟合。如果order等于1，
  *      则只进行一阶线性拟合。
  *      3，拟合完成后，按照geomap的输出文件格式对结果进行输出。
- *      4，该函数首先进行正向拟合，拟合结果输出到outfilename文件中；然后进行反向拟合，输
- *      出结果输出到outfilename.reverse(即在outfilename的后面添加后缀.reverse作为新的
- *      文件名)文件中。
+ *      4，该函数首先进行正向拟合，拟合结果输出到outfilename文件中；然后进行反向拟合，拟
+ *      合结果附加到outfilename文件中。
+ * 
  **输入：
  *      matchpeervec   亮星匹配对
  *      order        拟合阶数
@@ -169,13 +169,11 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
     }
 
     /*将拟合结果输出到文件*/
-    printBasicInfo(outfilename, xrefmean, yrefmean, xmean, ymean, objxrms2,
+    printBasicInfo(outfilename, "w", xrefmean, yrefmean, xmean, ymean, objxrms2,
             objyrms2, objxrmsn, objyrmsn, lineax, lineay, lineCof, ax, ay,
             cofNum, statusstr);
 
     /*反向拟合，使用目标星拟合参考星*/
-    char rvsOutFileName[MAX_LINE_LENGTH];
-    sprintf(rvsOutFileName, "%s.reverse", outfilename);
     for (i = 0; i < pointNum; i++) {
         ST_STAR tref = matchpeervec.at(i).ref;
         ST_STAR tobj = matchpeervec.at(i).obj;
@@ -229,7 +227,7 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
     }
 
     /*将拟合结果输出到文件*/
-    printBasicInfo(rvsOutFileName, xrefmean, yrefmean, xmean, ymean, objxrms2,
+    printBasicInfo(outfilename, "a", xrefmean, yrefmean, xmean, ymean, objxrms2,
             objyrms2, objxrmsn, objyrmsn, lineax, lineay, lineCof, ax, ay,
             cofNum, statusstr);
 
@@ -436,10 +434,10 @@ int GWAC_fitting(double *x1,
  *      0表示正确，其它值为错误码，
  *      蔡使用2001～2999，徐使用3001～3999，苑使用4001～4999，李使用5001～5999
  ******************************************************************************/
-int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double xmean,
-        double ymean, double xrms2, double yrms2, double xrmsn, double yrmsn,
-        double *cof2x, double * cof2y, int cof2Num, double *cofnx, double * cofny,
-        int cofnNum, char statusstr[]) {
+int printBasicInfo(const char *fName, char *otype, double xrefmean, double yrefmean, 
+        double xmean, double ymean, double xrms2, double yrms2, double xrmsn, 
+        double yrmsn, double *cof2x, double * cof2y, int cof2Num, double *cofnx, 
+        double * cofny, int cofnNum, char statusstr[]) {
 
     /*检查错误结果输出参数statusstr是否为空*/
     CHECK_STATUS_STR_IS_NULL(statusstr);
@@ -450,7 +448,7 @@ int printBasicInfo(const char *fName, double xrefmean, double yrefmean, double x
     CHECK_INPUT_IS_NULL("printBasicInfo", cofnx, "cofnx");
     CHECK_INPUT_IS_NULL("printBasicInfo", cofny, "cofny");
 
-    FILE *fp = fopen(fName, "w");
+    FILE *fp = fopen(fName, otype);
     CHECK_OPEN_FILE("printBasicInfo", fp, fName);
 
     int order2 = sqrt(2 * cof2Num);
