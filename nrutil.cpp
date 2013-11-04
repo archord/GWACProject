@@ -13,7 +13,7 @@ void nrerror(char error_text[])
 	exit(1);
 }
 
-float *vector(long nl, long nh)
+float *nrutil_vector(long nl, long nh)
 /* allocate a float vector with subscript range v[nl..nh] */
 {
 	float *v;
@@ -63,7 +63,7 @@ double *dvector(long nl, long nh)
 	return v-nl+NR_END;
 }
 
-float **matrix(long nrl, long nrh, long ncl, long nch)
+float **nrutil_matrix(long nrl, long nrh, long ncl, long nch)
 /* allocate a float matrix with subscript range m[nrl..nrh][ncl..nch] */
 {
 	long i, nrow=nrh-nrl+1,ncol=nch-ncl+1;

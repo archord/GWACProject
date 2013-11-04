@@ -40,7 +40,7 @@ float testFunction2(float x, float y) {
 int testGeomap() {
 
     unsigned int order = 5;
-    unsigned int iter = 30;
+    unsigned int iter = 1;
     float rejsigma = 2.5;
     float xrms, yrms;
     const char outfilename[MAX_LINE_LENGTH] = "gwac_geomap_result.txt";
