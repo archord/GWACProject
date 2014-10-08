@@ -74,6 +74,8 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
         float rejsigma,
         float &xrms,
         float &yrms,
+        float &xrms2,
+        float &yrms2,
         const char outfilename[],
         char statusstr[]);
 int cofun(double x1, 

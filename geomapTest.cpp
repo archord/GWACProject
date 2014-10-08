@@ -43,11 +43,12 @@ int testGeomap() {
     unsigned int iter = 1;
     float rejsigma = 2.5;
     float xrms, yrms;
-    const char outfilename[MAX_LINE_LENGTH] = "gwac_geomap_result.txt";
+    float xrms2, yrms2;
+    const char outfilename[MAX_LINE_LENGTH] = "gwac_geomap_result2.txt";
     char statusstr[MAX_LINE_LENGTH];
     memset(statusstr, 0, MAX_LINE_LENGTH);
 
-    char *fName = "data";
+    char *fName = "data";   //data  test.txt
     DataStruct *points;
     int pointNum;
     readPoints(fName, &points, &pointNum);
@@ -78,7 +79,11 @@ int testGeomap() {
     //    }
 
     int rstStatus = 0;
-    rstStatus = Gwac_geomap(matchpeervec, order, iter, rejsigma, xrms, yrms, outfilename, statusstr);
+    rstStatus = Gwac_geomap(matchpeervec, order, iter, rejsigma, xrms, yrms, xrms2, yrms2, outfilename, statusstr);
+    printf("xrms=%f\n", xrms);
+    printf("yrms=%f\n", yrms);
+    printf("xrms2=%f\n", xrms2);
+    printf("yrms2=%f\n", yrms2);
     printf("%s\n", statusstr);
 
     float xshift = 0, yshift = 0;

@@ -25,7 +25,7 @@ int printFitDiff(const char *fName, double refx[], double refy[], double inx[],
  * 功能：星表坐标拟合，包括正向拟合(in到ref)和反向拟合两部分(ref到in)
  *      1，实现iraf中geomap的功能，对输入的一组星表的坐标值in(x,y)进行坐标转换到另一组
  *      星表ref(x,y)。其中geomap的实现是先对这两组星表坐标进行一次线性拟合，然后再对ref
- *      与拟合结果的惨差进行高阶多项式拟合。
+ *      与拟合结果的残差进行高阶多项式拟合。
  *      2，这里实现时，如果order大于1，首先对这两组星表坐标进行一次线性拟合，然后再直接
  *      对这两组星表坐标进行高阶多项式拟合，没有针对惨差的高阶多项式拟合。如果order等于1，
  *      则只进行一阶线性拟合。
@@ -40,8 +40,10 @@ int printFitDiff(const char *fName, double refx[], double refy[], double inx[],
  *      rejsigma     数据抛弃sigma值
  * 
  **输出
- *      xrms         x方向拟合精度
- *      yrms         y方向拟合精度
+ *      xrms         正向拟合x方向拟合精度
+ *      yrms         正向拟合y方向拟合精度
+ *      xrms2        反向拟合x方向拟合精度
+ *      yrms2        反向拟合y方向拟合精度
  *      outfilename  输出拟合文件，格式同iraf geomap输出，具体描述见
  *      statusstr    返回值说明（不能超过128个字符）
  * 
@@ -55,6 +57,8 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
         float rejsigma,
         float &xrms,
         float &yrms,
+        float &xrms2,
+        float &yrms2,
         const char outfilename[],
         char statusstr[]) {
 
@@ -134,6 +138,9 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
     int retStatus = GWAC_fitting(objx, objy, refx, refy, pointNum, lineax,
             lineay, lineCof, &objxrms2, &objyrms2, iter, rejsigma, statusstr);
     CHECK_RETURN_SATUS(retStatus);
+    
+    xrms = objxrms2;
+    yrms = objyrms2;
 
 #ifdef GWAC_TEST
     printFitDiff("order2diff.txt", refx, refy, objx, objy, pointNum,
@@ -162,6 +169,9 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
                 &objxrmsn, &objyrmsn, iter, rejsigma, statusstr);
         CHECK_RETURN_SATUS(retStatus);
 
+      xrms = objxrmsn;
+      yrms = objyrmsn;
+    
 #ifdef GWAC_TEST
         printFitDiff("orderndiff.txt", refx, refy, objx, objy, pointNum,
                 ax, ay, cofNum, statusstr);
@@ -193,6 +203,9 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
             &objxrms2, &objyrms2, iter, rejsigma, statusstr);
     CHECK_RETURN_SATUS(retStatus);
 
+    xrms2 = objxrms2;
+    yrms2 = objyrms2;
+    
 #ifdef GWAC_TEST
     printFitDiff("reverse_order2diff.txt", refx, refy, objx, objy, pointNum,
             lineax, lineay, lineCof, statusstr);
@@ -220,6 +233,9 @@ int Gwac_geomap(vector<ST_STARPEER> matchpeervec,
                 &objxrmsn, &objyrmsn, iter, rejsigma, statusstr);
         CHECK_RETURN_SATUS(retStatus);
 
+      xrms2 = objxrmsn;
+      yrms2 = objyrmsn;
+    
 #ifdef GWAC_TEST
         printFitDiff("reverse_orderndiff.txt", refx, refy, objx, objy, pointNum,
                 ax, ay, cofNum, statusstr);
