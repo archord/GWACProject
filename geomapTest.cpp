@@ -44,7 +44,7 @@ int testGeomap() {
     float rejsigma = 2.5;
     float xrms, yrms;
     float xrms2, yrms2;
-    const char outfilename[MAX_LINE_LENGTH] = "gwac_geomap_result2.txt";
+    const char outfilename[MAX_LINE_LENGTH] = "gwac_geomap_result3.txt";
     char statusstr[MAX_LINE_LENGTH];
     memset(statusstr, 0, MAX_LINE_LENGTH);
 
@@ -98,7 +98,7 @@ void testGeoxytran() {
 
     const char *dataName = "20130111_177d550752_60d851283-420.fit.sex";
     const char cofName[MAX_LINE_LENGTH] = "gwac_geomap_result.txt";
-    const char outName[MAX_LINE_LENGTH] = "fits_result.txt";
+    const char outName[MAX_LINE_LENGTH] = "fits_result2.txt";
     char statusstr[MAX_LINE_LENGTH];
     memset(statusstr, 0, MAX_LINE_LENGTH);
 
@@ -158,4 +158,45 @@ void test2To5(){
     fclose(fp);
     free(residualsx);
     free(residualsy);
+}
+
+int testMacro1(char *statusstr){
+    GWAC_REPORT_ERROR(GWAC_ERROR, "error test1");
+}
+
+int testMacro2(char *statusstr){
+    CHECK_RETURN_SATUS(GWAC_OPEN_FILE_ERROR);
+}
+
+int testMacro3(char *statusstr){
+    CHECK_STATUS_STR_IS_NULL(NULL);
+}
+
+int testMacro4(char *statusstr){
+    CHECK_INPUT_IS_NULL(NULL,"var test");
+}
+
+int testMacro5(char *statusstr){
+    MALLOC_IS_NULL();
+}
+
+int testMacro6(char *statusstr){
+    CHECK_OPEN_FILE(NULL,"file test");
+}
+
+void testMacro(){
+    char statusstr[255] = "";
+    
+    int rst = testMacro1(statusstr);
+    printf("1######### %s", statusstr);
+    rst = testMacro2(statusstr);
+    printf("2######### %s", statusstr);
+    rst = testMacro3(statusstr);
+    printf("3######### %s", statusstr);
+    rst = testMacro4(statusstr);
+    printf("4######### %s", statusstr);
+    rst = testMacro5(statusstr);
+    printf("5######### %s", statusstr);
+    rst = testMacro6(statusstr);
+    printf("6######### %s", statusstr);
 }

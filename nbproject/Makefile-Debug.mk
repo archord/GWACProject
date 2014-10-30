@@ -35,6 +35,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/Gwac_cctran.o \
 	${OBJECTDIR}/Gwac_geomap.o \
 	${OBJECTDIR}/Gwac_geoxytran.o \
 	${OBJECTDIR}/geomapTest.o \
@@ -68,6 +69,11 @@ LDLIBSOPTIONS=-L.
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/gwacproject: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/gwacproject ${OBJECTFILES} ${LDLIBSOPTIONS} -lm
+
+${OBJECTDIR}/Gwac_cctran.o: Gwac_cctran.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/Gwac_cctran.o Gwac_cctran.cpp
 
 ${OBJECTDIR}/Gwac_geomap.o: Gwac_geomap.cpp 
 	${MKDIR} -p ${OBJECTDIR}

@@ -28,10 +28,10 @@ int GetShift(const char transfilename[],
     /*检查错误结果输出参数statusstr是否为空*/
     CHECK_STATUS_STR_IS_NULL(statusstr);
     /*检测输入参数是否为空*/
-    CHECK_INPUT_IS_NULL("GetShift", transfilename, "transfilename");
+    CHECK_INPUT_IS_NULL(transfilename, "transfilename");
 
     FILE *fp = fopen(transfilename, "r");
-    CHECK_OPEN_FILE("GetShift", fp, transfilename);
+    CHECK_OPEN_FILE(fp, transfilename);
 
     int flag = 0;
     char line[MAX_LINE_LENGTH];

@@ -34,7 +34,7 @@ int Gwac_geoxytran(vector<ST_STAR> &objvec,
     /*检查错误结果输出参数statusstr是否为空*/
     CHECK_STATUS_STR_IS_NULL(statusstr);
     /*检测输入参数是否为空*/
-    CHECK_INPUT_IS_NULL("Gwac_geoxytran", transfilename, "transfilename");
+    CHECK_INPUT_IS_NULL(transfilename, "transfilename");
 
     /*检测星表数据数组是否为空*/
     if (objvec.empty()) {
@@ -45,32 +45,44 @@ int Gwac_geoxytran(vector<ST_STAR> &objvec,
     }
 
     FILE *fp = fopen(transfilename, "r");
-    CHECK_OPEN_FILE("Gwac_geoxytran", fp, transfilename);
+    CHECK_OPEN_FILE(fp, transfilename);
 
     int surface2 = 0;
     int cofNum = 0, cofIdx = 0;
-    double *xcof, *ycof;
 
+    /*startFlag=1时，控制读取第二组参数，第二个surface2后面的参数*/
     int startFlag = 0;
     int reverseFlag = 0;
-    int cofStartLine = 0;
     char line[MAX_LINE_LENGTH];
+
+    /*读取拟合参数的行数，也就是surface2后面的数据*/
     while (fgets(line, MAX_LINE_LENGTH, fp) != NULL) {
         if (strstr(line, "surface2") != NULL) {
             /*如果flag==-1，则进行正向拟合，读取第一组多项式系数*/
             /*如果flag==1，则进行反向拟合，读取第二组多项式系数*/
             if ((flag == -1) || (flag == 1 && reverseFlag == 1)) {
                 sscanf(line, "%*s%d", &surface2);
-                /*前8行为其他信息*/
-                cofNum = surface2 - 8;
-                xcof = (double*) malloc(cofNum * sizeof (double));
-                CHECK_MALLOC_IS_NULL("Gwac_geoxytran", xcof, "xcof");
-                ycof = (double*) malloc(cofNum * sizeof (double));
-                CHECK_MALLOC_IS_NULL("Gwac_geoxytran", ycof, "ycof");
                 startFlag = 1;
+                break;
             }
             reverseFlag = 1;
         }
+    }
+
+    /*前8行为其他信息*/
+    cofNum = surface2 - 8;
+    double *xcof = (double*) malloc(cofNum * sizeof (double));
+    double *ycof = (double*) malloc(cofNum * sizeof (double));
+    double *afunc = (double*) malloc((cofNum + 1) * sizeof (double));
+    if (xcof == NULL || ycof == NULL || afunc == NULL) {
+        if (xcof != NULL) free(xcof);
+        if (ycof != NULL) free(xcof);
+        if (afunc != NULL) free(xcof);
+        MALLOC_IS_NULL();
+    }
+
+    int cofStartLine = 0;
+    while (fgets(line, MAX_LINE_LENGTH, fp) != NULL) {
         if (startFlag == 1) {
             cofStartLine++;
             /*从surface2开始的第9行开始读取拟合参数*/
@@ -80,14 +92,11 @@ int Gwac_geoxytran(vector<ST_STAR> &objvec,
             }
         }
         /*读完一组多项式系数，则跳出循环*/
-        if(cofStartLine >= 30) {
+        if (cofStartLine >= surface2 + 1) {
             break;
         }
     }
     fclose(fp);
-
-    double *afunc = (double*) malloc((cofNum + 1) * sizeof (double));
-    CHECK_MALLOC_IS_NULL("Gwac_geoxytran", afunc, "afunc");
 
     int i, j;
     for (i = 0; i < objvec.size(); i++) {
@@ -102,11 +111,9 @@ int Gwac_geoxytran(vector<ST_STAR> &objvec,
         star.y = tmpy;
     }
 
-    if (startFlag == 1) {
-        free(xcof);
-        free(ycof);
-    }
-    free(afunc);
+    if (xcof != NULL) free(xcof);
+    if (ycof != NULL) free(xcof);
+    if (afunc != NULL) free(xcof);
 
     return GWAC_SUCCESS;
 }

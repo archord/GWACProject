@@ -9,6 +9,7 @@
       <itemPath>mathFunction.h</itemPath>
       <itemPath>nrutil.h</itemPath>
       <itemPath>readPoints.h</itemPath>
+      <itemPath>testFunction.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
@@ -17,6 +18,7 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <itemPath>Gwac_cctran.cpp</itemPath>
       <itemPath>Gwac_geomap.cpp</itemPath>
       <itemPath>Gwac_geoxytran.cpp</itemPath>
       <itemPath>geomapTest.cpp</itemPath>
@@ -55,6 +57,8 @@
           <commandLine>-lm</commandLine>
         </linkerTool>
       </compileType>
+      <item path="Gwac_cctran.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="Gwac_geomap.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Gwac_geoxytran.cpp" ex="false" tool="1" flavor2="0">
@@ -80,6 +84,8 @@
       <item path="readPoints.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="readPoints.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="testFunction.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
     <conf name="Release" type="1">
@@ -103,6 +109,8 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
+      <item path="Gwac_cctran.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="Gwac_geomap.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Gwac_geoxytran.cpp" ex="false" tool="1" flavor2="0">
@@ -128,6 +136,8 @@
       <item path="readPoints.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="readPoints.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="testFunction.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>

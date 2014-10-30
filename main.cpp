@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "gwac.h"
+#include "testFunction.h"
 
 using namespace std;
 
@@ -32,6 +33,8 @@ int main(int argc, char** argv) {
     //    
     //    printf("star1 %f %f\n", star1.x, star1.y);
     //    printf("star2 %f %f\n", star2.x, star2.y);
+    
+//    testMacro();
 
     return 0;
 }
