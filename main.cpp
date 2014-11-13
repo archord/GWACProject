@@ -18,8 +18,8 @@ using namespace std;
  */
 int main(int argc, char** argv) {
 
-    testGeomap();
-    testGeoxytran();
+//    testGeomap();
+//    testGeoxytran();
     //test2To5();
 
     //    ST_STAR star1;
@@ -35,6 +35,9 @@ int main(int argc, char** argv) {
     //    printf("star2 %f %f\n", star2.x, star2.y);
     
 //    testMacro();
+//    testProjection();
+    
+    testCctran();
 
     return 0;
 }

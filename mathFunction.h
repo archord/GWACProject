@@ -14,6 +14,12 @@ void polynomialFit(double x1[], double x2[], double y[], double sig[], int ndat,
 double meand(double *data, int len);
 void quickSort(int min, int max, double a[]);
 double mediand(double array[], int len);
+void tanPlaneToSphere(double ra0, double dec0, double xi, double eta, double &ra, double &dec);
+void tanPlaneToSphere2(double ra0, double dec0, double xi, double eta, double &ra, double &dec);
+int tanSphereToPlane(double ra0, double dec0, double ra, double dec, double &xi, double &eta);
+void tanSphereToPlane2(double ra0, double dec0, double ra, double dec, double &xi, double &eta);
+int cofun(double x1, double x2, double *afunc, int cofNum);
+int cofun_Legendre(double x1, double x2, double *afunc, int cofNum);
 
 #endif	/* MATHFUNCTION_H */
 

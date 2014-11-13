@@ -8,16 +8,17 @@
 #include <math.h>
 
 /*******************************************************************************
- * 功能：星表坐标转换，根据指定的参数文件中的多项式拟合系数，对给定的星表列表进行坐标转换
+ * 功能：星表坐标转换，平面坐标系到平面坐标系的转换，使用多项式拟合方式进行转换
+ *      根据指定的参数文件中的多项式拟合系数，对给定的星表列表进行坐标转换
  * 
  **输入：
  *      objvec星表列表，输入时为待转换坐标，输出时为转换后坐标
  *      transfilename 拟合参数文件名，其格式为geomap软件输出格式
  *      flag 控制转换方向
  *          当flag= 1时，反向拟合，objvec输入为（xref,yref），输出为（xin,yin），读
- *          取参赛文件中第二组拟合系数
+ *          取参赛文件中第二组拟合系数中surface2后的系数
  *          当flag=-1时，正向拟合，objvec输入为（xin,yin），输出为（xref,yref），读
- *          取参赛文件中第一组拟合系数
+ *          取参赛文件中第一组拟合系数中surface2后的系数
  * 
  **输出
  *      objvec星表列表，输入时为待转换坐标，输出时为转换后坐标
@@ -76,8 +77,8 @@ int Gwac_geoxytran(vector<ST_STAR> &objvec,
     double *afunc = (double*) malloc((cofNum + 1) * sizeof (double));
     if (xcof == NULL || ycof == NULL || afunc == NULL) {
         if (xcof != NULL) free(xcof);
-        if (ycof != NULL) free(xcof);
-        if (afunc != NULL) free(xcof);
+        if (ycof != NULL) free(ycof);
+        if (afunc != NULL) free(afunc);
         MALLOC_IS_NULL();
     }
 
@@ -86,13 +87,13 @@ int Gwac_geoxytran(vector<ST_STAR> &objvec,
         if (startFlag == 1) {
             cofStartLine++;
             /*从surface2开始的第9行开始读取拟合参数*/
-            if (cofStartLine > 9) {
+            if (cofStartLine >= 9) {
                 sscanf(line, "%lf %lf", &xcof[cofIdx], &ycof[cofIdx]);
                 cofIdx++;
             }
         }
         /*读完一组多项式系数，则跳出循环*/
-        if (cofStartLine >= surface2 + 1) {
+        if (cofStartLine >= surface2) {
             break;
         }
     }
@@ -112,8 +113,8 @@ int Gwac_geoxytran(vector<ST_STAR> &objvec,
     }
 
     if (xcof != NULL) free(xcof);
-    if (ycof != NULL) free(xcof);
-    if (afunc != NULL) free(xcof);
+    if (ycof != NULL) free(ycof);
+    if (afunc != NULL) free(afunc);
 
     return GWAC_SUCCESS;
 }

@@ -37,6 +37,7 @@ typedef struct {
 #define GWAC_TEST1
 
 #define MAX_LINE_LENGTH 1024
+#define DEGREE_TO_RADIANS 57.295779513
 
 #define GWAC_SUCCESS 0
 #define GWAC_ERROR 3001
@@ -102,6 +103,10 @@ int GetShift(const char transfilename[],
         float &yshift,
         char statusstr[]);
 int Gwac_geoxytran(vector<ST_STAR> &objvec,
+        const char transfilename[],
+        int flag,
+        char statusstr[]);
+int Gwac_cctran(vector<ST_STAR> &objvec,
         const char transfilename[],
         int flag,
         char statusstr[]);

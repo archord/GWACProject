@@ -574,45 +574,6 @@ int printBasicInfo(const char *fName, char *otype, double xrefmean, double yrefm
     return GWAC_SUCCESS;
 }
 
-/*******************************************************************************
- * 功能：二元高阶最小二乘功能函数，计算各系数所对应项的值，系数个数cofNum=order*(order+1)
- *      其中order为最高阶次。
- * 
- **输入：
- *      x1 输入数据x
- *      x2 输入数据y
- *      cofNum 系数个数
- * 
- **输出
- *      afunc 输出系数
- *          
- **返回值:
- *      0表示正确，其它值为错误码，
- *      蔡使用2001～2999，徐使用3001～3999，苑使用4001～4999，李使用5001～5999
- ******************************************************************************/
-int cofun(double x1,
-        double x2,
-        double *afunc,
-        int cofNum) {
-
-    if (NULL == afunc) {
-        printf("File %s line %d, afunc is NULL\n", __FILE__, __LINE__);
-        return GWAC_FUNCTION_INPUT_NULL;
-    }
-
-    int order = sqrt(2 * cofNum);
-    int j, k;
-    int i = 1;
-    for (j = 0; j < order; j++) {
-        for (k = 0; k < order - j; k++) {
-            double x = pow(x1, k);
-            double y = pow(x2, j);
-            afunc[i++] = x * y;
-        }
-    }
-
-    return GWAC_SUCCESS;
-}
 
 /**
  * 测试函数

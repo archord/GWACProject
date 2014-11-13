@@ -13,6 +13,8 @@ int testGeomap();
 void testGeoxytran();
 void test2To5();
 void testMacro();
+void testProjection();
+void testCctran();
 
 #endif	/* TESTFUNCTION_H */
 
