@@ -42,15 +42,15 @@ float testFunction2(float x, float y) {
 int testGeomap() {
 
     unsigned int order = 5;
-    unsigned int iter = 1;
+    unsigned int iter = 4;
     float rejsigma = 2.5;
     float xrms, yrms;
     float xrms2, yrms2;
-    const char outfilename[MAX_LINE_LENGTH] = "cctran/map.txt";
+    const char outfilename[MAX_LINE_LENGTH] = "test/map-config.txt";
     char statusstr[MAX_LINE_LENGTH];
     memset(statusstr, 0, MAX_LINE_LENGTH);
 
-    char *fName = "cctran/data"; //data  test.txt
+    char *fName = "test/M1_01_151101_1_010020_0019_Mtest.dat"; //data  test.txt
     DataStruct *points;
     int pointNum;
     readPoints(fName, &points, &pointNum);
@@ -97,10 +97,11 @@ int testGeomap() {
 }
 
 void testGeoxytran() {
-
-    const char *dataName = "20130111_177d550752_60d851283-420.fit.sex";
-    const char cofName[MAX_LINE_LENGTH] = "gwac_geomap_result.txt";
-    const char outName[MAX_LINE_LENGTH] = "fits_result2.txt";
+  //M1_01_151101_1_010020_0019_Mtest.dat M1_01_151101_1_010020_0019.fit.sexini
+    const char *dataName = "test/M1_01_151101_1_010020_0019.fit.sexini"; //20130111_177d550752_60d851283-420.fit.sex geomap/data
+//    const char *dataName = "test/M1_01_151101_1_010020_0099.fit.tran3"; //20130111_177d550752_60d851283-420.fit.sex geomap/data
+    const char cofName[MAX_LINE_LENGTH] = "test/map-config.txt";
+    const char outName[MAX_LINE_LENGTH] = "test/fits_result.txt";
     char statusstr[MAX_LINE_LENGTH];
     memset(statusstr, 0, MAX_LINE_LENGTH);
 
@@ -130,9 +131,10 @@ void testGeoxytran() {
 
 void test2To5() {
 
-    const char order2[MAX_LINE_LENGTH] = "fits_result_2order.txt";
-    const char order5[MAX_LINE_LENGTH] = "fits_result_5order.txt";
-    const char outfile[MAX_LINE_LENGTH] = "residual_2_5.txt";
+    const char order2[MAX_LINE_LENGTH] = "test/M1_01_151101_1_010020_0099.fit.tran3";
+//    const char order2[MAX_LINE_LENGTH] = "test/M1_01_151101_1_010020_0019_Mtest.dat";
+    const char order5[MAX_LINE_LENGTH] = "test/fits_result.txt";
+    const char outfile[MAX_LINE_LENGTH] = "test/residual.txt";
     char statusstr[MAX_LINE_LENGTH];
     memset(statusstr, 0, MAX_LINE_LENGTH);
 
@@ -148,8 +150,8 @@ void test2To5() {
 
     int i;
     for (i = 0; i < pointNum2; i++) {
-        residualsx[i] = points2[i].xin - points5[i].xin;
-        residualsy[i] = points2[i].yin - points5[i].yin;
+        residualsx[i] = points2[i].xref - points5[i].xin;
+        residualsy[i] = points2[i].yref - points5[i].yin;
         float rms = sqrt(residualsx[i] * residualsx[i] + residualsy[i] * residualsy[i]);
         fprintf(fp, "%12.6f %12.6f %12.6f %12.6f %12.6f %12.6f %12.6f\n",
                 points2[i].xin, points2[i].yin,

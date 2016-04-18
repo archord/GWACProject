@@ -559,9 +559,9 @@ int printBasicInfo(const char *fName, char *otype, double xrefmean, double yrefm
 
     for (i = 1; i <= cofnNum; i++) {
         if (cofnNum != cof2Num)
-            fprintf(fp, "			%e\t%e\n", cofnx[i], cofny[i]);
+            fprintf(fp, "            %e\t%e\n", cofnx[i], cofny[i]);
         else
-            fprintf(fp, "			%e\t%e\n", cof2x[i], cof2y[i]);
+            fprintf(fp, "            %e\t%e\n", cof2x[i], cof2y[i]);
 #ifdef GWAC_TEST
         if (cofnNum != cof2Num)
             printf("%e\t%e\n", cofnx[i], cofny[i]);

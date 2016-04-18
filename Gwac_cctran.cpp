@@ -158,8 +158,10 @@ int Gwac_cctran(vector<ST_STAR> &objvec,
             tanPlaneToSphere(lngref, latref, xi + xires, eta + etares, ra, dec);
 //            star.ra = xi;
 //            star.dec = eta;
-            star.ra = xi + xires;
-            star.dec = eta + etares;
+//            star.ra = xi + xires;
+//            star.dec = eta + etares; 
+            star.ra = ra;
+            star.dec = dec;
         }
     } else if (flag == -1) {
         for (i = 0; i < objvec.size(); i++) {
