@@ -48,6 +48,7 @@ typedef struct {
 #define GWAC_FUNCTION_INPUT_EMPTY 3005
 #define GWAC_STATUS_STR_NULL 3006
 #define GWAC_STRING_NULL_OR_EMPTY 3007
+#define GWAC_SEND_DATA_ERROR 3008
 
 #define CHECK_RETURN_SATUS(var) {if(var!=GWAC_SUCCESS)return var;}
 #define GWAC_REPORT_ERROR(errCode, errStr) \

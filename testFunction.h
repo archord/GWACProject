@@ -14,6 +14,7 @@ void testGeoxytran();
 void test2To5();
 void testMacro();
 void testProjection();
+void testProjection2();
 void testCctran();
 
 #endif	/* TESTFUNCTION_H */

@@ -219,8 +219,68 @@ void testProjection() {
     tanSphereToPlane2(ra0, dec0, ra, dec, xi, eta);
     printf("xi=%f eta=%f\n", xi, eta);
 
-    xi = -0.005405;
-    eta = -0.078667;
+//    xi = -0.005405;
+//    eta = -0.078667;
+
+
+    tanPlaneToSphere(ra0, dec0, xi, eta, ra, dec);
+    printf("ra=%f dec=%f\n", ra, dec);
+    tanPlaneToSphere2(ra0, dec0, xi, eta, ra, dec);
+    printf("ra=%f dec=%f\n", ra, dec);
+
+}
+
+void testProjection2() {
+    //1039.780        1599.120    119.61845398        67.31501007
+    double ra0 = 120.4146562756105;
+    double dec0 = 71.85829263128276;
+    double ra = 119.61845398;
+    double dec = 67.31501007;
+    double x = 1039.780;
+    double y = 1599.120;
+    double xi;
+    double eta;
+    
+    double a = 1402.868558469206;
+    double b = -972.282292734403;
+    double c = -29871.65438087219;
+    double d = -2550.406313606504;
+    double e = 29880.52202304072;
+    double f = -973.3084798633404;
+
+    printf("x=%f y=%f\n", x, y);
+    x = (x-1500)/1000;
+    y= (y-1500)/1000;
+    printf("x=%f y=%f\n", x, y);
+    xi = a +b*x +c*y;
+    eta = d + e*x +f*y;
+    printf("xi=%f eta=%f\n", xi, eta);
+    
+    xi/=SECOND_TO_RADIANS;
+    eta/=SECOND_TO_RADIANS;
+    double ra2=0, dec2=0;
+    tanPlaneToSphere(ra0, dec0, xi, eta, ra2, dec2);
+    printf("ra=%f dec=%f\n", ra2, dec2);
+    
+    int rst = tanSphereToPlane(ra0, dec0, ra, dec, xi, eta);
+    printf("xi=%f eta=%f\n", xi, eta);
+    printf("rst=%d\n", rst);
+    xi*=SECOND_TO_RADIANS;
+    eta*=SECOND_TO_RADIANS;
+    printf("xi=%f eta=%f\n", xi, eta);
+    
+    y = (e*xi-b*eta+b*d-a*e)/(e*c-b*f);
+    x=(xi-c*y-a)/b;
+    double x2 = (eta-f*y-d)/e;
+    printf("x=%f\n", x);
+    printf("x=%f\n", x2);
+    printf("y=%f\n", y);
+    x=x*1000+1500;
+    y=y*1000+1500;
+    printf("x=%f y=%f\n", x, y);
+
+//    xi = -0.005405;
+//    eta = -0.078667;
 
 
     tanPlaneToSphere(ra0, dec0, xi, eta, ra, dec);
@@ -232,6 +292,10 @@ void testProjection() {
 
 void testCctran() {
 
+//    const char *dataName = "/home/xy/testdata/data11.txt";
+//    const char cofName[MAX_LINE_LENGTH] = "/home/xy/testdata/refcom.acc";
+//    const char outName1[MAX_LINE_LENGTH] = "/home/xy/testdata/xy2radec.txt";
+//    const char outName2[MAX_LINE_LENGTH] = "/home/xy/testdata/radec2xy.txt";
     const char *dataName = "cctran/a.axycc";
     const char cofName[MAX_LINE_LENGTH] = "cctran/refcom.acc";
     const char outName1[MAX_LINE_LENGTH] = "cctran/xytoradec.txt";
@@ -251,6 +315,8 @@ void testCctran() {
             ST_STAR star;
             star.x = points[i].xref;
             star.y = points[i].yref;
+            star.ra = points[i].xin;
+            star.dec = points[i].yin;
             stars.push_back(star);
         }
         Gwac_cctran(stars, cofName, flag, statusstr);
@@ -268,6 +334,8 @@ void testCctran() {
         int i;
         for (i = 0; i < pointNum; i++) {
             ST_STAR star;
+            star.x = points[i].xref;
+            star.y = points[i].yref;
             star.ra = points[i].xin;
             star.dec = points[i].yin;
             stars.push_back(star);

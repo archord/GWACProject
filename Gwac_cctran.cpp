@@ -144,12 +144,14 @@ int Gwac_cctran(vector<ST_STAR> &objvec,
                 xires += xcof[j - 1] * afunc[j];
                 etares += ycof[j - 1] * afunc[j];
             }
+            
+            xi = xi + xires;
+            eta = eta + etares;
+            xi/=SECOND_TO_RADIANS;
+            eta/=SECOND_TO_RADIANS;
+            
             double ra = 0.0, dec = 0.0;
-            tanPlaneToSphere(lngref, latref, xi + xires, eta + etares, ra, dec);
-//            star.ra = xi;
-//            star.dec = eta;
-//            star.ra = xi + xires;
-//            star.dec = eta + etares; 
+            tanPlaneToSphere(lngref, latref, xi, eta, ra, dec);
             star.ra = ra;
             star.dec = dec;
         }
@@ -161,13 +163,10 @@ int Gwac_cctran(vector<ST_STAR> &objvec,
             tanSphereToPlane(lngref, latref, star.ra, star.dec, xi, eta);
             xi*=SECOND_TO_RADIANS;
             eta*=SECOND_TO_RADIANS;
-            
-            double normalXi = (star.x - xcenter)/hafbnd;
-            double normalEta = (star.y - xcenter)/hafbnd;
-            
+                        
             double x = xcofl[0] + xcofl[1]*xi + xcofl[2]*eta;
             double y = ycofl[0] + ycofl[1]*xi+ ycofl[2]*eta;
-            
+                        
             cofun_Legendre(xi, eta, afunc, cofNum);
             double xres = 0.0;
             double yres = 0.0;
@@ -175,8 +174,8 @@ int Gwac_cctran(vector<ST_STAR> &objvec,
                 xres += xcof[j - 1] * afunc[j];
                 yres += ycof[j - 1] * afunc[j];
             }
-            star.x = x + xres;
-            star.y = y + yres;
+            star.x = (x + xres)*hafbnd+xcenter;
+            star.y = (y + yres)*hafbnd+xcenter;
         }
     }
 
