@@ -70,8 +70,8 @@ int Gwac_cctran(vector<ST_STAR> &objvec,
             break;
         }
     }
-    printf("lngref=%lf\n", lngref);
-    printf("latref=%lf\n", latref);
+//    printf("lngref=%lf\n", lngref);
+//    printf("latref=%lf\n", latref);
 
     double xcofl[3] = {0.0};
     double ycofl[3] = {0.0};
@@ -84,7 +84,6 @@ int Gwac_cctran(vector<ST_STAR> &objvec,
         }else if(cofStartLine==6){ /*legendre拟合边界最大值*/
             sscanf(line, "%f %*s", &maxbnd);
         }else if (cofStartLine >= 9) { /*从surface2开始的第9行开始读取拟合参数*/
-            printf("%s\n", line);
             sscanf(line, "%lf %lf", &xcofl[cofIdx], &ycofl[cofIdx]);
             cofIdx++;
         }
@@ -115,7 +114,6 @@ int Gwac_cctran(vector<ST_STAR> &objvec,
         cofStartLine++;
         /*从surface2开始的第9行开始读取拟合参数*/
         if (cofStartLine >= 9) {
-            printf("%s\n", line);
             sscanf(line, "%lf %lf", &xcof[cofIdx], &ycof[cofIdx]);
             cofIdx++;
         }
