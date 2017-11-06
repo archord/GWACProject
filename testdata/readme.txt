@@ -1,0 +1,4 @@
+G020_mon_objt_171012T17432740_trans.cat为程序生成关系文件
+refcom.acc为iraf生成的关系文件
+GwacStandall.cat 为输入星表，第一列为x，第二列为y
+testout1.cat为用iraf cctran命令输出的ra，dec文件

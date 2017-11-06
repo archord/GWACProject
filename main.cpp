@@ -18,9 +18,9 @@ using namespace std;
  */
 int main(int argc, char** argv) {
 
-    testGeomap();
-    testGeoxytran();
-    test2To5();
+//    testGeomap();
+//    testGeoxytran();
+//    test2To5();
 
     //    ST_STAR star1;
     //    star1.x = 10;
@@ -35,9 +35,9 @@ int main(int argc, char** argv) {
     //    printf("star2 %f %f\n", star2.x, star2.y);
     
 //    testMacro();
-//    testProjection();
+//    testProjection2();
     
-//    testCctran();
+    testCctran();
 
     return 0;
 }

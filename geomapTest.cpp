@@ -292,10 +292,10 @@ void testProjection2() {
 
 void testCctran() {
 
-//    const char *dataName = "/home/xy/testdata/data11.txt";
-//    const char cofName[MAX_LINE_LENGTH] = "/home/xy/testdata/refcom.acc";
-//    const char outName1[MAX_LINE_LENGTH] = "/home/xy/testdata/xy2radec.txt";
-//    const char outName2[MAX_LINE_LENGTH] = "/home/xy/testdata/radec2xy.txt";
+//    const char *dataName = "testdata/data11.txt";
+//    const char cofName[MAX_LINE_LENGTH] = "testdata/refcom.acc";
+//    const char outName1[MAX_LINE_LENGTH] = "testdata/xy2radec.txt";
+//    const char outName2[MAX_LINE_LENGTH] = "testdata/radec2xy.txt";
     const char *dataName = "cctran/a.axycc";
     const char cofName[MAX_LINE_LENGTH] = "cctran/refcom.acc";
     const char outName1[MAX_LINE_LENGTH] = "cctran/xytoradec.txt";

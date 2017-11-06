@@ -55,7 +55,8 @@ int Gwac_cctran(vector<ST_STAR> &objvec,
     int surface2 = 0;
     int cofNum = 0;
     double lngref = 0.0, latref = 0.0;
-    float minbnd = 0.0, maxbnd = 0.0;
+    float minxbnd = 0.0, maxxbnd = 0.0;
+    float minybnd = 0.0, maxybnd = 0.0;
 
     char line[MAX_LINE_LENGTH];
 
@@ -80,9 +81,13 @@ int Gwac_cctran(vector<ST_STAR> &objvec,
     while (fgets(line, MAX_LINE_LENGTH, fp) != NULL) {
         cofStartLine++;
         if(cofStartLine==5){ /*legendre拟合边界最小值*/
-            sscanf(line, "%f %*s", &minbnd);
+            sscanf(line, "%f %*s", &minxbnd);
         }else if(cofStartLine==6){ /*legendre拟合边界最大值*/
-            sscanf(line, "%f %*s", &maxbnd);
+            sscanf(line, "%f %*s", &maxxbnd);
+        }else if(cofStartLine==7){ /*legendre拟合边界最小值*/
+            sscanf(line, "%f %*s", &minybnd);
+        }else if(cofStartLine==8){ /*legendre拟合边界最大值*/
+            sscanf(line, "%f %*s", &maxybnd);
         }else if (cofStartLine >= 9) { /*从surface2开始的第9行开始读取拟合参数*/
             sscanf(line, "%lf %lf", &xcofl[cofIdx], &ycofl[cofIdx]);
             cofIdx++;
@@ -124,15 +129,17 @@ int Gwac_cctran(vector<ST_STAR> &objvec,
     }
     fclose(fp);
 
-    float xcenter = (minbnd+maxbnd)/2;
-    float hafbnd = (maxbnd - minbnd)/2;
+    float xcenter = (minxbnd+maxxbnd)/2;
+    float hafbndx = (maxxbnd - minxbnd)/2;
+    float ycenter = (minybnd+maxybnd)/2;
+    float hafbndy = (maxybnd - minybnd)/2;
     int i, j;
     if (flag == 1) {
         for (i = 0; i < objvec.size(); i++) {
             ST_STAR &star = objvec.at(i);
             
-            double normalX = (star.x - xcenter)/hafbnd;
-            double normalY = (star.y - xcenter)/hafbnd;
+            double normalX = (star.x - xcenter)/hafbndy;
+            double normalY = (star.y - ycenter)/hafbndy;
             double xi = xcofl[0] + xcofl[1]*normalX+ xcofl[2]*normalY;
             double eta = ycofl[0] + ycofl[1]*normalX + ycofl[2]*normalY;
 
@@ -172,8 +179,8 @@ int Gwac_cctran(vector<ST_STAR> &objvec,
                 xres += xcof[j - 1] * afunc[j];
                 yres += ycof[j - 1] * afunc[j];
             }
-            star.x = (x + xres)*hafbnd+xcenter;
-            star.y = (y + yres)*hafbnd+xcenter;
+            star.x = (x + xres)*hafbndx+xcenter;
+            star.y = (y + yres)*hafbndy+ycenter;
         }
     }
 
