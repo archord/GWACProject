@@ -8,6 +8,7 @@
 #include <math.h>
 
 #include "mathFunction.h"
+#include "WCSTNX.h"
 
 /*******************************************************************************
  * 功能：星表坐标转换，平面坐标系与天球坐标系的转换，平面坐标系与天球坐标系之间有一个标准
@@ -35,158 +36,44 @@ int Gwac_cctran(vector<ST_STAR> &objvec,
         int flag,
         char statusstr[]) {
 
-    /*检查错误结果输出参数statusstr是否为空*/
-    CHECK_STATUS_STR_IS_NULL(statusstr);
-    /*检测输入参数是否为空*/
-    CHECK_INPUT_IS_NULL(transfilename, "transfilename");
+  /*检查错误结果输出参数statusstr是否为空*/
+  CHECK_STATUS_STR_IS_NULL(statusstr);
+  /*检测输入参数是否为空*/
+  CHECK_INPUT_IS_NULL(transfilename, "transfilename");
 
-    /*检测星表数据数组是否为空*/
-    if (objvec.empty()) {
-        sprintf(statusstr, "Error Code: %d\n"
-                "In Gwac_geoxytran, the input parameter objvec is empty!\n",
-                GWAC_FUNCTION_INPUT_EMPTY);
-        return GWAC_FUNCTION_INPUT_EMPTY;
+  /*检测星表数据数组是否为空*/
+  if (objvec.empty()) {
+    sprintf(statusstr, "Error Code: %d\n"
+            "In Gwac_geoxytran, the input parameter objvec is empty!\n",
+            GWAC_FUNCTION_INPUT_EMPTY);
+    return GWAC_FUNCTION_INPUT_EMPTY;
+  }
+
+  WCSTNX tnx;
+  if (!tnx.LoadText(transfilename)) {
+    sprintf(statusstr, "Error Code: %d\n"\
+                "File %s line %d, open file \"%s\" error!\n",
+            GWAC_OPEN_FILE_ERROR, __FILE__, __LINE__, transfilename);
+    return GWAC_OPEN_FILE_ERROR;
+  }
+
+  if (flag == 1) {
+    for (int i = 0; i < objvec.size(); i++) {
+      ST_STAR &star = objvec.at(i);
+      double ra = 0.0, dec = 0.0;
+      tnx.XY2WCS(star.x, star.y, ra, dec);
+      star.ra = ra;
+      star.dec = dec;
     }
-
-    FILE *fp = fopen(transfilename, "r");
-    CHECK_OPEN_FILE(fp, transfilename);
-
-    int surface1 = 0;
-    int surface2 = 0;
-    int cofNum = 0;
-    double lngref = 0.0, latref = 0.0;
-    float minxbnd = 0.0, maxxbnd = 0.0;
-    float minybnd = 0.0, maxybnd = 0.0;
-
-    char line[MAX_LINE_LENGTH];
-
-    /*读取拟合参数的行数，也就是surface2后面的数据*/
-    while (fgets(line, MAX_LINE_LENGTH, fp) != NULL) {
-        if (strstr(line, "lngref") != NULL) {
-            sscanf(line, "%*s%lf", &lngref);    //ra中值
-        } else if (strstr(line, "latref") != NULL) {
-            sscanf(line, "%*s%lf", &latref);    //dec中值
-        } else if (strstr(line, "surface1") != NULL) {
-            sscanf(line, "%*s%d", &surface1);  //线性参数项8+3
-            break;
-        }
+  } else if (flag == -1) {
+    for (int i = 0; i < objvec.size(); i++) {
+      ST_STAR &star = objvec.at(i);
+      double x = 0.0, y = 0.0;
+      tnx.WCS2XY(star.ra, star.dec, x, y);
+      star.x = x;
+      star.y = y;
     }
-//    printf("lngref=%lf\n", lngref);
-//    printf("latref=%lf\n", latref);
+  }
 
-    double xcofl[3] = {0.0};
-    double ycofl[3] = {0.0};
-    int cofIdx = 0;
-    int cofStartLine = 0;
-    while (fgets(line, MAX_LINE_LENGTH, fp) != NULL) {
-        cofStartLine++;
-        if(cofStartLine==5){ /*legendre拟合边界最小值*/
-            sscanf(line, "%f %*s", &minxbnd);
-        }else if(cofStartLine==6){ /*legendre拟合边界最大值*/
-            sscanf(line, "%f %*s", &maxxbnd);
-        }else if(cofStartLine==7){ /*legendre拟合边界最小值*/
-            sscanf(line, "%f %*s", &minybnd);
-        }else if(cofStartLine==8){ /*legendre拟合边界最大值*/
-            sscanf(line, "%f %*s", &maxybnd);
-        }else if (cofStartLine >= 9) { /*从surface2开始的第9行开始读取拟合参数*/
-            sscanf(line, "%lf %lf", &xcofl[cofIdx], &ycofl[cofIdx]);
-            cofIdx++;
-        }
-        /*读完一组多项式系数，则跳出循环*/
-        if (cofStartLine >= surface1) {
-            break;
-        }
-    }
-    
-    fgets(line, MAX_LINE_LENGTH, fp);
-    sscanf(line, "%*s%d", &surface2);  //高阶参数项
-
-    /*前8行为其他信息*/
-    cofNum = surface2 - 8;
-    double *xcof = (double*) malloc(cofNum * sizeof (double));
-    double *ycof = (double*) malloc(cofNum * sizeof (double));
-    double *afunc = (double*) malloc((cofNum + 1) * sizeof (double));
-    if (xcof == NULL || ycof == NULL || afunc == NULL) {
-        if (xcof != NULL) free(xcof);
-        if (ycof != NULL) free(ycof);
-        if (afunc != NULL) free(afunc);
-        MALLOC_IS_NULL();
-    }
-
-    cofIdx = 0;
-    cofStartLine = 0;
-    while (fgets(line, MAX_LINE_LENGTH, fp) != NULL) {
-        cofStartLine++;
-        /*从surface2开始的第9行开始读取拟合参数*/
-        if (cofStartLine >= 9) {
-            sscanf(line, "%lf %lf", &xcof[cofIdx], &ycof[cofIdx]);
-            cofIdx++;
-        }
-        /*读完一组多项式系数，则跳出循环*/
-        if (cofStartLine >= surface2) {
-            break;
-        }
-    }
-    fclose(fp);
-
-    float xcenter = (minxbnd+maxxbnd)/2;
-    float hafbndx = (maxxbnd - minxbnd)/2;
-    float ycenter = (minybnd+maxybnd)/2;
-    float hafbndy = (maxybnd - minybnd)/2;
-    int i, j;
-    if (flag == 1) {
-        for (i = 0; i < objvec.size(); i++) {
-            ST_STAR &star = objvec.at(i);
-            
-            double normalX = (star.x - xcenter)/hafbndy;
-            double normalY = (star.y - ycenter)/hafbndy;
-            double xi = xcofl[0] + xcofl[1]*normalX+ xcofl[2]*normalY;
-            double eta = ycofl[0] + ycofl[1]*normalX + ycofl[2]*normalY;
-
-            cofun_Legendre(normalX, normalY, afunc, cofNum);
-            double xires = 0.0, etares = 0.0;
-            for (j = 1; j <= cofNum; j++) {
-                xires += xcof[j - 1] * afunc[j];
-                etares += ycof[j - 1] * afunc[j];
-            }
-            
-            xi = xi + xires;
-            eta = eta + etares;
-            xi/=SECOND_TO_RADIANS;
-            eta/=SECOND_TO_RADIANS;
-            
-            double ra = 0.0, dec = 0.0;
-            tanPlaneToSphere(lngref, latref, xi, eta, ra, dec);
-            star.ra = ra;
-            star.dec = dec;
-        }
-    } else if (flag == -1) {
-        for (i = 0; i < objvec.size(); i++) {
-            ST_STAR &star = objvec.at(i);
-            
-            double xi = 0.0, eta = 0.0;
-            tanSphereToPlane(lngref, latref, star.ra, star.dec, xi, eta);
-            xi*=SECOND_TO_RADIANS;
-            eta*=SECOND_TO_RADIANS;
-                        
-            double x = xcofl[0] + xcofl[1]*xi + xcofl[2]*eta;
-            double y = ycofl[0] + ycofl[1]*xi+ ycofl[2]*eta;
-                        
-            cofun_Legendre(xi, eta, afunc, cofNum);
-            double xres = 0.0;
-            double yres = 0.0;
-            for (j = 1; j <= cofNum; j++) {
-                xres += xcof[j - 1] * afunc[j];
-                yres += ycof[j - 1] * afunc[j];
-            }
-            star.x = (x + xres)*hafbndx+xcenter;
-            star.y = (y + yres)*hafbndy+ycenter;
-        }
-    }
-
-    if (xcof != NULL) free(xcof);
-    if (ycof != NULL) free(ycof);
-    if (afunc != NULL) free(afunc);
-
-    return GWAC_SUCCESS;
+  return GWAC_SUCCESS;
 }
