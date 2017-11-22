@@ -39,15 +39,16 @@ namespace AstroUtil {
 #define DJC			36525.0		//< 儒略历每世纪天数
 #define DJM			365250.0		//< 儒略历每千年天数
 
-// 数字常数
-#define AEPS			1E-6			//< 最小值
-#define AMAX			1E30			//< 最大值
+/// 数字常数
+#define AEPS			1E-4		//< 最小值
+#define AMAX			1E30		//< 最大值
 
-// 宏定义函数
-#define frac(x)		((x) - floor(x))		// 计算实数的小数部分
-#define reduce(x, period)	((x) - floor((x) / (period)) * (period))	// 将数值调整到一个周期内
+/// 计算实数的小数部分
+#define frac(x)		((x) - floor(x))
+/// 将数值调整到一个周期内
+#define reduce(x, period)	((x) - floor((x) / (period)) * (period))
 
-// 浮点型点
+/// 浮点型点
 typedef struct POINT2F {
 	double x, y;	//< XY坐标
 
