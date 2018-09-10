@@ -21,7 +21,7 @@ FC=gfortran
 AS=as
 
 # Macros
-CND_PLATFORM=GNU-Linux-x86
+CND_PLATFORM=GNU-Linux
 CND_DLIB_EXT=so
 CND_CONF=Release
 CND_DISTDIR=dist
@@ -38,6 +38,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/Gwac_cctran.o \
 	${OBJECTDIR}/Gwac_geomap.o \
 	${OBJECTDIR}/Gwac_geoxytran.o \
+	${OBJECTDIR}/WCSTNX.o \
 	${OBJECTDIR}/geomapTest.o \
 	${OBJECTDIR}/getShift.o \
 	${OBJECTDIR}/main.o \
@@ -70,50 +71,55 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/gwacproject: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/gwacproject ${OBJECTFILES} ${LDLIBSOPTIONS}
 
-${OBJECTDIR}/Gwac_cctran.o: Gwac_cctran.cpp 
+${OBJECTDIR}/Gwac_cctran.o: Gwac_cctran.cpp
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Gwac_cctran.o Gwac_cctran.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Gwac_cctran.o Gwac_cctran.cpp
 
-${OBJECTDIR}/Gwac_geomap.o: Gwac_geomap.cpp 
+${OBJECTDIR}/Gwac_geomap.o: Gwac_geomap.cpp
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Gwac_geomap.o Gwac_geomap.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Gwac_geomap.o Gwac_geomap.cpp
 
-${OBJECTDIR}/Gwac_geoxytran.o: Gwac_geoxytran.cpp 
+${OBJECTDIR}/Gwac_geoxytran.o: Gwac_geoxytran.cpp
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Gwac_geoxytran.o Gwac_geoxytran.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Gwac_geoxytran.o Gwac_geoxytran.cpp
 
-${OBJECTDIR}/geomapTest.o: geomapTest.cpp 
+${OBJECTDIR}/WCSTNX.o: WCSTNX.cpp
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/geomapTest.o geomapTest.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/WCSTNX.o WCSTNX.cpp
 
-${OBJECTDIR}/getShift.o: getShift.cpp 
+${OBJECTDIR}/geomapTest.o: geomapTest.cpp
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/getShift.o getShift.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/geomapTest.o geomapTest.cpp
 
-${OBJECTDIR}/main.o: main.cpp 
+${OBJECTDIR}/getShift.o: getShift.cpp
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/main.o main.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/getShift.o getShift.cpp
 
-${OBJECTDIR}/mathFunction.o: mathFunction.cpp 
+${OBJECTDIR}/main.o: main.cpp
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/mathFunction.o mathFunction.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
 
-${OBJECTDIR}/nrutil.o: nrutil.cpp 
+${OBJECTDIR}/mathFunction.o: mathFunction.cpp
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/nrutil.o nrutil.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mathFunction.o mathFunction.cpp
 
-${OBJECTDIR}/readPoints.o: readPoints.cpp 
+${OBJECTDIR}/nrutil.o: nrutil.cpp
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/readPoints.o readPoints.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/nrutil.o nrutil.cpp
+
+${OBJECTDIR}/readPoints.o: readPoints.cpp
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/readPoints.o readPoints.cpp
 
 # Subprojects
 .build-subprojects:
@@ -121,7 +127,6 @@ ${OBJECTDIR}/readPoints.o: readPoints.cpp
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
-	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/gwacproject
 
 # Subprojects
 .clean-subprojects:

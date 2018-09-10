@@ -9,8 +9,8 @@
 #define	TESTFUNCTION_H
 
 
-int testGeomap();
-void testGeoxytran();
+void testGeomap(char *pairCatalog, char *mapParm, unsigned int order, unsigned int iter, float rejsigma);
+void testGeoxytran(char *dataCatalog, char *mapParm, char *outName, int direction);
 void test2To5();
 void testMacro();
 void testProjection();

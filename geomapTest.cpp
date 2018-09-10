@@ -39,21 +39,24 @@ float testFunction2(float x, float y) {
   return rst;
 }
 
-int testGeomap() {
+void testGeomap(char *pairCatalog, char *mapParm, unsigned int order, unsigned int iter, float rejsigma) {
 
-  unsigned int order = 5;
-  unsigned int iter = 4;
-  float rejsigma = 2.5;
+  printf("start geomap\n");
+//  unsigned int order = 5;
+//  unsigned int iter = 4;
+//  float rejsigma = 2.5;
   float xrms, yrms;
   float xrms2, yrms2;
-  const char outfilename[MAX_LINE_LENGTH] = "test/map-config.txt";
+//  const char outfilename[MAX_LINE_LENGTH] = "test/map-config.txt";
   char statusstr[MAX_LINE_LENGTH];
   memset(statusstr, 0, MAX_LINE_LENGTH);
 
-  char *fName = "test/M1_01_151101_1_010020_0019_Mtest.dat"; //data  test.txt
+//  char *fName = "test/M1_01_151101_1_010020_0019_Mtest.dat"; //data  test.txt
   DataStruct *points;
   int pointNum;
-  readPoints(fName, &points, &pointNum);
+  
+  readPoints(pairCatalog, &points, &pointNum);
+  printf("read %d pos pairs\n", pointNum);
 
   vector<ST_STARPEER> matchpeervec;
   int i;
@@ -66,22 +69,9 @@ int testGeomap() {
     matchpeervec.push_back(peer);
   }
 
-  //    int pointNum = 600;
-  //    vector<ST_STARPEER> matchpeervec;
-  //    int i;
-  //    for (i = 0; i < pointNum; i++) {
-  //        ST_STARPEER peer;
-  //        int x = i + 10.32;
-  //        int y = 0.2 * i + 1;
-  //        peer.ref.x = x;
-  //        peer.ref.y = y;
-  //        peer.obj.x = testFunction1(x, y);
-  //        peer.obj.y = testFunction2(x, y);
-  //        matchpeervec.push_back(peer);
-  //    }
-
+  printf("run Gwac_geomap\n");
   int rstStatus = 0;
-  rstStatus = Gwac_geomap(matchpeervec, order, iter, rejsigma, xrms, yrms, xrms2, yrms2, outfilename, statusstr);
+  rstStatus = Gwac_geomap(matchpeervec, order, iter, rejsigma, xrms, yrms, xrms2, yrms2, mapParm, statusstr);
   printf("xrms=%f\n", xrms);
   printf("yrms=%f\n", yrms);
   printf("xrms2=%f\n", xrms2);
@@ -89,37 +79,39 @@ int testGeomap() {
   printf("%s\n", statusstr);
 
   float xshift = 0, yshift = 0;
-  rstStatus = GetShift(outfilename, xshift, yshift, statusstr);
+  rstStatus = GetShift(mapParm, xshift, yshift, statusstr);
   printf("xshift=%f\nyshift=%f\n", xshift, yshift);
   printf("%s\n", statusstr);
 
+  printf("geomap done\n");
+  
   free(points);
 }
 
-void testGeoxytran() {
+void testGeoxytran(char *dataCatalog, char *mapParm, char *outName, int direction) {
   //M1_01_151101_1_010020_0019_Mtest.dat M1_01_151101_1_010020_0019.fit.sexini
-  const char *dataName = "test/M1_01_151101_1_010020_0019.fit.sexini"; //20130111_177d550752_60d851283-420.fit.sex geomap/data
+//  const char *dataName = "test/M1_01_151101_1_010020_0019.fit.sexini"; //20130111_177d550752_60d851283-420.fit.sex geomap/data
   //    const char *dataName = "test/M1_01_151101_1_010020_0099.fit.tran3"; //20130111_177d550752_60d851283-420.fit.sex geomap/data
-  const char cofName[MAX_LINE_LENGTH] = "test/map-config.txt";
-  const char outName[MAX_LINE_LENGTH] = "test/fits_result.txt";
+//  const char cofName[MAX_LINE_LENGTH] = "test/map-config.txt";
+//  const char outName[MAX_LINE_LENGTH] = "test/fits_result.txt";
   char statusstr[MAX_LINE_LENGTH];
   memset(statusstr, 0, MAX_LINE_LENGTH);
 
   DataStruct *points;
   int pointNum;
-  readPoints(dataName, &points, &pointNum);
+  readPoints(dataCatalog, &points, &pointNum);
 
   vector<ST_STAR> stars;
   int i;
   for (i = 0; i < pointNum; i++) {
     ST_STAR star;
-    star.x = points[i].xref;
-    star.y = points[i].yref;
+    star.x = points[i].xin;
+    star.y = points[i].yin;
     stars.push_back(star);
   }
 
-  int flag = -1;
-  Gwac_geoxytran(stars, cofName, flag, statusstr);
+//  int flag = -1;
+  Gwac_geoxytran(stars, mapParm, direction, statusstr);
 
   for (i = 0; i < pointNum; i++) {
     points[i].xin = stars.at(i).x;
